@@ -27,4 +27,4 @@ class Goal(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="goals")
-    tasks = relationship("Task", back_populates="goal")
+    tasks = relationship("Task", back_populates="goal", cascade="all, delete-orphan")
