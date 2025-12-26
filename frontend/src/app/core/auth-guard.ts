@@ -6,10 +6,7 @@ export const authGuard: CanActivateFn = async () => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  // Wait for initial auth check to complete
-  if (auth.loading()) {
-    await auth.checkAuth();
-  }
+  await auth.whenReady();
 
   if (auth.isAuthenticated()) {
     return true;
@@ -23,10 +20,7 @@ export const guestGuard: CanActivateFn = async () => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  // Wait for initial auth check to complete
-  if (auth.loading()) {
-    await auth.checkAuth();
-  }
+  await auth.whenReady();
 
   if (!auth.isAuthenticated()) {
     return true;

@@ -24,6 +24,7 @@ export class Auth {
 
   private userSignal = signal<User | null>(null);
   private loadingSignal = signal<boolean>(true);
+  private initPromise: Promise<boolean>;
 
   user = this.userSignal.asReadonly();
   loading = this.loadingSignal.asReadonly();
@@ -32,7 +33,7 @@ export class Auth {
   private readonly TOKEN_KEY = 'access_token';
 
   constructor() {
-    this.checkAuth();
+    this.initPromise = this.checkAuth();
   }
 
   getToken(): string | null {
@@ -45,6 +46,10 @@ export class Auth {
 
   private clearToken(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+  }
+
+  async whenReady(): Promise<boolean> {
+    return this.initPromise;
   }
 
   async checkAuth(): Promise<boolean> {
