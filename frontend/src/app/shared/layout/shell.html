@@ -8,6 +8,12 @@
   <div class="flex pt-14">
     <!-- Sidebar - Desktop -->
     <aside class="hidden lg:block w-60 fixed left-0 top-14 bottom-0 bg-bg-secondary border-r border-border-default overflow-y-auto">
+      <!-- User Account -->
+      <div class="p-2 border-b border-border-default">
+        <app-user-account />
+      </div>
+
+      <!-- Navigation -->
       <nav class="p-4 space-y-1">
         <app-nav-item label="Today" route="/today" [count]="5" />
         <app-nav-item label="This Week" route="/week" [count]="12" />
@@ -20,7 +26,13 @@
       <div class="lg:hidden fixed inset-0 z-40">
         <div class="absolute inset-0 bg-black/40" (click)="closeSidebar()"></div>
         <aside class="absolute left-0 top-0 bottom-0 w-70 bg-bg-secondary shadow-xl overflow-y-auto">
-          <nav class="p-4 pt-20 space-y-1">
+          <!-- User Account -->
+          <div class="p-2 pt-4 border-b border-border-default">
+            <app-user-account />
+          </div>
+
+          <!-- Navigation -->
+          <nav class="p-4 space-y-1">
             <app-nav-item label="Today" route="/today" [count]="5" (click)="closeSidebar()" />
             <app-nav-item label="This Week" route="/week" [count]="12" (click)="closeSidebar()" />
             <app-nav-item label="Someday" route="/someday" [count]="8" (click)="closeSidebar()" />

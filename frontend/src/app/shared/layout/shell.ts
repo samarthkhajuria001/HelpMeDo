@@ -2,11 +2,12 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Header } from './header';
 import { NavItem } from '../components/nav-item/nav-item';
+import { UserAccount } from '../components/user-account/user-account';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, Header, NavItem],
+  imports: [RouterOutlet, Header, NavItem, UserAccount],
   templateUrl: './shell.html',
   styleUrl: './shell.css'
 })
