@@ -40,6 +40,9 @@ module.exports = {
         'goal-rose': '#F43F5E',
         'goal-violet': '#8B5CF6',
         'goal-cyan': '#06B6D4',
+        // Login page warm colors
+        'warm-periwinkle': '#F5F3FF',
+        'warm-blue': '#EBF4FF',
       },
       boxShadow: {
         'sm': '0 1px 2px rgba(0, 0, 0, 0.05)',
