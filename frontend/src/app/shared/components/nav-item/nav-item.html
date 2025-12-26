@@ -1,0 +1,10 @@
+<a
+  [routerLink]="route()"
+  routerLinkActive="active"
+  class="nav-item"
+>
+  <span class="label">{{ label() }}</span>
+  @if (count() !== null) {
+    <span class="count">{{ count() }}</span>
+  }
+</a>
