@@ -19,6 +19,9 @@
         <app-nav-item label="This Week" route="/week" [count]="12" />
         <app-nav-item label="Someday" route="/someday" [count]="8" />
       </nav>
+
+      <!-- Goals -->
+      <app-goals-section />
     </aside>
 
     <!-- Sidebar - Mobile Overlay -->
@@ -37,6 +40,9 @@
             <app-nav-item label="This Week" route="/week" [count]="12" (click)="closeSidebar()" />
             <app-nav-item label="Someday" route="/someday" [count]="8" (click)="closeSidebar()" />
           </nav>
+
+          <!-- Goals -->
+          <app-goals-section />
         </aside>
       </div>
     }

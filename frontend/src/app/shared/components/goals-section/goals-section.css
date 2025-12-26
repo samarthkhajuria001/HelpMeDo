@@ -1,0 +1,52 @@
+.goals-section {
+  padding: 16px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #78716C;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.add-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  color: #78716C;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.add-button:hover {
+  background-color: #EDEDED;
+  color: #1C1917;
+}
+
+.add-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.goals-empty {
+  padding: 12px;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: #A8A29E;
+}
