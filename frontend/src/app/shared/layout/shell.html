@@ -23,11 +23,11 @@
 
     <!-- Sidebar - Mobile Overlay -->
     @if (sidebarOpen()) {
-      <div class="lg:hidden fixed inset-0 z-40">
+      <div class="lg:hidden fixed inset-0 top-14 z-40">
         <div class="absolute inset-0 bg-black/40" (click)="closeSidebar()"></div>
         <aside class="absolute left-0 top-0 bottom-0 w-70 bg-bg-secondary shadow-xl overflow-y-auto">
           <!-- User Account -->
-          <div class="p-2 pt-4 border-b border-border-default">
+          <div class="p-2 border-b border-border-default">
             <app-user-account />
           </div>
 

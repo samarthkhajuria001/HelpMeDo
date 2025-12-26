@@ -1,3 +1,7 @@
+.user-account-wrapper {
+  position: relative;
+}
+
 .user-account {
   display: flex;
   align-items: center;
@@ -65,4 +69,14 @@
 
 .user-account.open .chevron {
   transform: rotate(180deg);
+}
+
+/* Dropdown positioning */
+app-user-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 8px;
+  right: 8px;
+  margin-top: 4px;
+  z-index: 50;
 }
