@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     CORS_ORIGINS: list[str] = ["http://localhost:4200"]
+    PORT: int = 8000
 
     class Config:
         env_file = ".env"

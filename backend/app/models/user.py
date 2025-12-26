@@ -1,7 +1,6 @@
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime
-from sqlalchemy.dialects.sqlite import CHAR
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -9,7 +8,7 @@ from app.database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String, unique=True, nullable=False)
     name = Column(String, nullable=False)
     google_id = Column(String, unique=True, nullable=False)

@@ -2,7 +2,6 @@ import uuid
 from datetime import datetime, timezone
 from enum import Enum as PyEnum
 from sqlalchemy import Column, String, Boolean, DateTime, Date, Time, ForeignKey, Enum, Text
-from sqlalchemy.dialects.sqlite import CHAR
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -28,9 +27,9 @@ class TimeHorizon(str, PyEnum):
 class Task(Base):
     __tablename__ = "tasks"
 
-    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(CHAR(36), ForeignKey("users.id"), nullable=False)
-    goal_id = Column(CHAR(36), ForeignKey("goals.id"), nullable=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    goal_id = Column(String(36), ForeignKey("goals.id"), nullable=True)
     title = Column(String(500), nullable=False)
     description = Column(Text, default="")
     agent_notes = Column(Text, nullable=True)
