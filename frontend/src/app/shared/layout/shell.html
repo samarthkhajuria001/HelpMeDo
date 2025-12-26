@@ -1,0 +1,52 @@
+<div class="min-h-screen bg-bg-primary">
+  <!-- Header -->
+  <app-header
+    (menuClick)="toggleSidebar()"
+    (aiClick)="toggleAIPanel()"
+  />
+
+  <div class="flex pt-14">
+    <!-- Sidebar - Desktop -->
+    <aside class="hidden lg:block w-60 fixed left-0 top-14 bottom-0 bg-bg-secondary border-r border-border-default overflow-y-auto">
+      <nav class="p-4">
+        <p class="text-text-tertiary text-sm">Sidebar placeholder</p>
+      </nav>
+    </aside>
+
+    <!-- Sidebar - Mobile Overlay -->
+    @if (sidebarOpen()) {
+      <div class="lg:hidden fixed inset-0 z-40">
+        <div class="absolute inset-0 bg-black/40" (click)="closeSidebar()"></div>
+        <aside class="absolute left-0 top-0 bottom-0 w-70 bg-bg-secondary shadow-xl overflow-y-auto">
+          <nav class="p-4 pt-20">
+            <p class="text-text-tertiary text-sm">Sidebar placeholder</p>
+          </nav>
+        </aside>
+      </div>
+    }
+
+    <!-- Main Content -->
+    <main class="flex-1 lg:ml-60 min-h-[calc(100vh-3.5rem)]">
+      <div class="max-w-2xl mx-auto px-4 py-6 lg:px-6">
+        <router-outlet />
+      </div>
+    </main>
+
+    <!-- AI Panel - Desktop -->
+    @if (aiPanelOpen()) {
+      <aside class="hidden lg:block w-90 fixed right-0 top-14 bottom-0 bg-bg-surface border-l border-border-default shadow-lg overflow-y-auto">
+        <div class="p-4">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-semibold text-text-primary">AI Assistant</h2>
+            <button (click)="toggleAIPanel()" class="text-text-tertiary hover:text-text-primary">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-text-tertiary text-sm">AI Panel placeholder</p>
+        </div>
+      </aside>
+    }
+  </div>
+</div>
