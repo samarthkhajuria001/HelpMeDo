@@ -10,9 +10,9 @@ interface VariantConfig {
 
 const VARIANTS: Record<Exclude<EmptyStateVariant, 'custom'>, VariantConfig> = {
   no_tasks: {
-    primary: 'No tasks here',
-    secondary: 'Tasks will appear here when you add them',
-    actionLabel: 'Add a task'
+    primary: 'No tasks yet',
+    secondary: 'Add one above to get started',
+    actionLabel: null
   },
   all_complete: {
     primary: 'All done!',
