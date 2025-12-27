@@ -13,8 +13,6 @@
     @for (task of tasksByPriority().high; track task.id) {
       <app-task-row
         [task]="task"
-        [expanded]="expandedTaskId() === task.id"
-        (expandToggle)="onExpandToggle(task.id)"
         (statusChange)="onStatusChange(task, $event)"
         (titleChange)="onTitleChange(task, $event)"
         (descriptionChange)="onDescriptionChange(task, $event)"
@@ -29,8 +27,6 @@
     @for (task of tasksByPriority().medium; track task.id) {
       <app-task-row
         [task]="task"
-        [expanded]="expandedTaskId() === task.id"
-        (expandToggle)="onExpandToggle(task.id)"
         (statusChange)="onStatusChange(task, $event)"
         (titleChange)="onTitleChange(task, $event)"
         (descriptionChange)="onDescriptionChange(task, $event)"
@@ -45,8 +41,6 @@
     @for (task of tasksByPriority().low; track task.id) {
       <app-task-row
         [task]="task"
-        [expanded]="expandedTaskId() === task.id"
-        (expandToggle)="onExpandToggle(task.id)"
         (statusChange)="onStatusChange(task, $event)"
         (titleChange)="onTitleChange(task, $event)"
         (descriptionChange)="onDescriptionChange(task, $event)"

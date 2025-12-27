@@ -11,15 +11,16 @@ import { Task, Status } from '../../../core/models';
 })
 export class TaskRow implements OnDestroy {
   task = input.required<Task>();
-  expanded = input(false);
 
   statusChange = output<Status>();
   titleChange = output<string>();
   descriptionChange = output<string>();
-  expandToggle = output<void>();
   delete = output<void>();
 
   isCompleted = computed(() => this.task().status === 'completed');
+
+  // Local expanded state
+  expanded = signal(false);
 
   // Inline edit state
   editing = signal(false);
@@ -31,15 +32,16 @@ export class TaskRow implements OnDestroy {
   private deleteTimer: ReturnType<typeof setInterval> | null = null;
   private deleteTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  toggleStatus(event: Event) {
+  toggleStatus(event: MouseEvent) {
     event.stopPropagation();
+    event.preventDefault();
     const newStatus: Status = this.isCompleted() ? 'pending' : 'completed';
     this.statusChange.emit(newStatus);
   }
 
   toggleExpand() {
     if (!this.editing() && !this.deleting()) {
-      this.expandToggle.emit();
+      this.expanded.update(v => !v);
     }
   }
 
