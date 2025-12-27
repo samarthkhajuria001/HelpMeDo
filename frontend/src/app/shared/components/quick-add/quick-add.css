@@ -66,9 +66,30 @@
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid #F5F5F4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.placeholder-text {
+.add-btn {
+  margin-left: auto;
+  padding: 8px 16px;
+  border: none;
+  background: #2563EB;
+  color: white;
   font-size: 13px;
-  color: #A8A29E;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: #1D4ED8;
+}
+
+.add-btn:disabled {
+  background: #93C5FD;
+  cursor: not-allowed;
 }

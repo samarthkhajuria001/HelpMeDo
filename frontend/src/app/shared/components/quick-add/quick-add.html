@@ -21,8 +21,23 @@
 
   @if (expanded()) {
     <div class="options-row">
-      <!-- Options will be added in Stage 5.5 -->
-      <span class="placeholder-text">Options coming soon...</span>
+      <app-select-dropdown
+        [options]="priorityOptions"
+        [value]="priority()"
+        (change)="onPriorityChange($event)"
+      />
+      <app-date-picker
+        [value]="dueDate()"
+        (change)="onDateChange($event)"
+      />
+      <button
+        type="button"
+        class="add-btn"
+        [disabled]="!title().trim() || submitting()"
+        (click)="onSubmit()"
+      >
+        Add
+      </button>
     </div>
   }
 </div>
