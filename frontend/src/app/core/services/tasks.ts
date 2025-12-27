@@ -3,6 +3,28 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Task, TaskCreate, TaskUpdate, TimeHorizon } from '../models';
 
+function calculateTimeHorizon(dateStr: string | null): TimeHorizon {
+  if (!dateStr) return 'someday';
+
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const dueDate = new Date(year, month - 1, day);
+  dueDate.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+
+  if (dueDate <= today) {
+    return 'today';
+  } else if (dueDate <= endOfWeek) {
+    return 'week';
+  } else {
+    return 'someday';
+  }
+}
+
 export interface TasksByPriority {
   high: Task[];
   medium: Task[];
@@ -84,16 +106,31 @@ export class Tasks {
   }
 
   async updateTask(id: string, data: TaskUpdate): Promise<Task> {
-    const task = await this.http.patch<Task>(`${this.apiUrl}/${id}`, data).toPromise();
+    const updateData = { ...data };
 
-    // Update local state
-    this.tasks.update(tasks =>
-      tasks.map(t => t.id === id ? { ...t, ...data } : t)
-    );
+    // When due_date changes, also update time_horizon
+    if ('due_date' in data) {
+      updateData.time_horizon = calculateTimeHorizon(data.due_date ?? null);
+    }
 
-    // Refresh counts if status changed
-    if (data.status) {
+    const task = await this.http.patch<Task>(`${this.apiUrl}/${id}`, updateData).toPromise();
+
+    // Check if time_horizon changed - task should move to different page
+    const currentHorizon = this.currentHorizon();
+    if (updateData.time_horizon && currentHorizon && updateData.time_horizon !== currentHorizon) {
+      // Remove task from current view since it moved to a different horizon
+      this.tasks.update(tasks => tasks.filter(t => t.id !== id));
       this.loadCounts();
+    } else {
+      // Update local state
+      this.tasks.update(tasks =>
+        tasks.map(t => t.id === id ? { ...t, ...updateData } : t)
+      );
+
+      // Refresh counts if status changed
+      if (data.status) {
+        this.loadCounts();
+      }
     }
 
     return task!;

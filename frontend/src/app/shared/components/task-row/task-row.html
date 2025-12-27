@@ -93,11 +93,18 @@
       <div class="panel-section metadata-row">
         <div class="metadata-item">
           <span class="metadata-label">Priority</span>
-          <span class="metadata-value">{{ task().priority | titlecase }}</span>
+          <app-select-dropdown
+            [options]="priorityOptions"
+            [value]="task().priority"
+            (change)="onPriorityChange($event)"
+          />
         </div>
         <div class="metadata-item">
           <span class="metadata-label">Due</span>
-          <span class="metadata-value">{{ formattedDueDate() || 'Today' }}</span>
+          <app-date-picker
+            [value]="task().due_date"
+            (change)="onDueDateChange($event)"
+          />
         </div>
         @if (task().goal_id) {
           <div class="metadata-item">

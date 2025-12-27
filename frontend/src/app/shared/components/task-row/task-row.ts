@@ -1,11 +1,13 @@
 import { Component, input, output, computed, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
-import { Task, Status } from '../../../core/models';
+import { Task, Status, Priority } from '../../../core/models';
+import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown';
+import { DatePicker } from '../date-picker/date-picker';
 
 @Component({
   selector: 'app-task-row',
-  imports: [FormsModule, TitleCasePipe],
+  imports: [FormsModule, TitleCasePipe, SelectDropdown, DatePicker],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })
@@ -15,7 +17,15 @@ export class TaskRow implements OnDestroy {
   statusChange = output<Status>();
   titleChange = output<string>();
   descriptionChange = output<string>();
+  priorityChange = output<Priority>();
+  dueDateChange = output<string | null>();
   delete = output<void>();
+
+  priorityOptions: SelectOption[] = [
+    { value: 'high', label: 'High', dotColor: '#EF4444' },
+    { value: 'medium', label: 'Medium', dotColor: '#F59E0B' },
+    { value: 'low', label: 'Low', dotColor: '#22C55E' },
+  ];
 
   isCompleted = computed(() => this.task().status === 'completed');
 
@@ -53,6 +63,21 @@ export class TaskRow implements OnDestroy {
 
     if (newDescription !== currentDescription) {
       this.descriptionChange.emit(newDescription);
+    }
+  }
+
+  // Priority change
+  onPriorityChange(value: string) {
+    const newPriority = value as Priority;
+    if (newPriority !== this.task().priority) {
+      this.priorityChange.emit(newPriority);
+    }
+  }
+
+  // Due date change
+  onDueDateChange(date: string | null) {
+    if (date !== this.task().due_date) {
+      this.dueDateChange.emit(date);
     }
   }
 

@@ -1,5 +1,5 @@
 import { Component, input, output, computed, inject } from '@angular/core';
-import { Task, Status } from '../../../core/models';
+import { Task, Status, Priority } from '../../../core/models';
 import { Tasks } from '../../../core/services';
 import { SectionHeader } from '../section-header/section-header';
 import { TaskRow } from '../task-row/task-row';
@@ -66,6 +66,14 @@ export class TaskList {
 
   onDescriptionChange(task: Task, description: string) {
     this.tasksService.updateTask(task.id, { description });
+  }
+
+  onPriorityChange(task: Task, priority: Priority) {
+    this.tasksService.updateTask(task.id, { priority });
+  }
+
+  onDueDateChange(task: Task, due_date: string | null) {
+    this.tasksService.updateTask(task.id, { due_date });
   }
 
   onDelete(task: Task) {
