@@ -118,11 +118,17 @@ export class TaskRow implements OnDestroy {
     return `priority-${this.task().priority}`;
   });
 
+  // Parse YYYY-MM-DD string as local date (not UTC)
+  private parseDate(dateStr: string): Date {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   formattedDueDate = computed(() => {
     const date = this.task().due_date;
     if (!date) return null;
 
-    const dueDate = new Date(date);
+    const dueDate = this.parseDate(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

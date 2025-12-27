@@ -43,12 +43,12 @@ export class TaskList {
     return grouped.high.length > 0 || grouped.medium.length > 0 || grouped.low.length > 0;
   });
 
-  pendingCounts = computed(() => {
+  completedCounts = computed(() => {
     const grouped = this.tasksByPriority();
     return {
-      high: grouped.high.filter(t => t.status === 'pending').length,
-      medium: grouped.medium.filter(t => t.status === 'pending').length,
-      low: grouped.low.filter(t => t.status === 'pending').length
+      high: grouped.high.filter(t => t.status === 'completed').length,
+      medium: grouped.medium.filter(t => t.status === 'completed').length,
+      low: grouped.low.filter(t => t.status === 'completed').length
     };
   });
 

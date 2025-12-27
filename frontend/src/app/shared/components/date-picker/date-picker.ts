@@ -26,6 +26,12 @@ export class DatePicker {
     return `${year}-${month}-${day}`;
   }
 
+  // Parse YYYY-MM-DD string as local date (not UTC)
+  private parseDate(dateStr: string): Date {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   todayString = computed(() => {
     return this.formatDate(new Date());
   });
@@ -34,7 +40,7 @@ export class DatePicker {
 
   displayValue = computed(() => {
     const val = this.effectiveValue();
-    const date = new Date(val);
+    const date = this.parseDate(val);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

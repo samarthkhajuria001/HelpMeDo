@@ -66,8 +66,14 @@ export class QuickAdd {
     this.dueDate.set(date);
   }
 
+  // Parse YYYY-MM-DD string as local date (not UTC)
+  private parseDate(dateStr: string): Date {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   private computeHorizonFromDate(dateStr: string): TimeHorizon {
-    const date = new Date(dateStr);
+    const date = this.parseDate(dateStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
