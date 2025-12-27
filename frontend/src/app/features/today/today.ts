@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Tasks } from '../../core/services';
 import { TaskList } from '../../shared/components/task-list/task-list';
+import { QuickAdd } from '../../shared/components/quick-add/quick-add';
 
 @Component({
   selector: 'app-today',
-  imports: [TaskList],
+  imports: [TaskList, QuickAdd],
   templateUrl: './today.html',
   styleUrl: './today.css',
 })

@@ -1,0 +1,28 @@
+<div class="quick-add" [class.expanded]="expanded()">
+  <div class="input-row">
+    <span class="plus-icon">+</span>
+    <input
+      type="text"
+      class="title-input"
+      placeholder="Add a task..."
+      [ngModel]="title()"
+      (ngModelChange)="title.set($event)"
+      (keydown)="onKeydown($event)"
+      [disabled]="submitting()"
+    />
+    <button
+      type="button"
+      class="more-btn"
+      (click)="toggleExpanded()"
+    >
+      {{ expanded() ? 'Less' : 'More' }}
+    </button>
+  </div>
+
+  @if (expanded()) {
+    <div class="options-row">
+      <!-- Options will be added in Stage 5.5 -->
+      <span class="placeholder-text">Options coming soon...</span>
+    </div>
+  }
+</div>
