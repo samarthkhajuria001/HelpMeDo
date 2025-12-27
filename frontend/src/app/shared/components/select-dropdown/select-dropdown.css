@@ -1,0 +1,103 @@
+.select-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #E7E5E4;
+  background: white;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #1C1917;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.trigger:hover {
+  border-color: #D6D3D1;
+}
+
+.trigger.open {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.label {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.chevron {
+  width: 16px;
+  height: 16px;
+  color: #A8A29E;
+  transition: transform 150ms ease-out;
+}
+
+.trigger.open .chevron {
+  transform: rotate(180deg);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #E7E5E4;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  z-index: 50;
+  padding: 4px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #1C1917;
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+  text-align: left;
+}
+
+.option:hover {
+  background-color: #F5F5F4;
+}
+
+.option.selected {
+  background-color: #EFF6FF;
+}
+
+.option-label {
+  flex: 1;
+}
+
+.check {
+  width: 16px;
+  height: 16px;
+  color: #2563EB;
+  flex-shrink: 0;
+}
