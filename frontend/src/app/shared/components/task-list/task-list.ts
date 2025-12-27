@@ -60,6 +60,10 @@ export class TaskList {
     this.tasksService.updateTask(task.id, { status });
   }
 
+  onTitleChange(task: Task, title: string) {
+    this.tasksService.updateTask(task.id, { title });
+  }
+
   onDelete(task: Task) {
     this.tasksService.deleteTask(task.id);
   }

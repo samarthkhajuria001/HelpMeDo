@@ -1,18 +1,24 @@
 import { Component, input, output, computed, signal, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Task, Status } from '../../../core/models';
 
 @Component({
   selector: 'app-task-row',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })
 export class TaskRow implements OnDestroy {
   task = input.required<Task>();
   statusChange = output<Status>();
+  titleChange = output<string>();
   delete = output<void>();
 
   isCompleted = computed(() => this.task().status === 'completed');
+
+  // Inline edit state
+  editing = signal(false);
+  editedTitle = signal('');
 
   // Delete timer state
   deleting = signal(false);
@@ -24,6 +30,35 @@ export class TaskRow implements OnDestroy {
     event.stopPropagation();
     const newStatus: Status = this.isCompleted() ? 'pending' : 'completed';
     this.statusChange.emit(newStatus);
+  }
+
+  startEdit(event: Event) {
+    event.stopPropagation();
+    this.editedTitle.set(this.task().title);
+    this.editing.set(true);
+  }
+
+  saveEdit() {
+    const newTitle = this.editedTitle().trim();
+    if (newTitle && newTitle !== this.task().title) {
+      this.titleChange.emit(newTitle);
+    }
+    this.editing.set(false);
+  }
+
+  cancelEdit() {
+    this.editing.set(false);
+    this.editedTitle.set('');
+  }
+
+  onEditKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.saveEdit();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.cancelEdit();
+    }
   }
 
   startDelete(event: Event) {

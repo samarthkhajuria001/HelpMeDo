@@ -10,7 +10,19 @@
 
   <!-- Content -->
   <div class="content">
-    <span class="title" [class]="priorityClass()">{{ task().title }}</span>
+    @if (editing()) {
+      <input
+        type="text"
+        class="title-input"
+        [ngModel]="editedTitle()"
+        (ngModelChange)="editedTitle.set($event)"
+        (blur)="saveEdit()"
+        (keydown)="onEditKeydown($event)"
+        autofocus
+      />
+    } @else {
+      <span class="title" [class]="priorityClass()" (click)="startEdit($event)">{{ task().title }}</span>
+    }
   </div>
 
   <!-- Meta -->
