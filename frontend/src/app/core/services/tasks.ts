@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Task, TimeHorizon, Priority } from '../models';
+import { Task, TaskCreate, TimeHorizon } from '../models';
 
 export interface TasksByPriority {
   high: Task[];
@@ -25,6 +25,8 @@ export class Tasks {
   error = signal<string | null>(null);
   counts = signal<TaskCounts>({ today: 0, week: 0, someday: 0 });
 
+  private currentHorizon = signal<TimeHorizon | null>(null);
+
   tasksByPriority = computed<TasksByPriority>(() => {
     const allTasks = this.tasks();
     return {
@@ -45,6 +47,7 @@ export class Tasks {
   async loadTasks(timeHorizon?: TimeHorizon, goalId?: string): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
+    this.currentHorizon.set(timeHorizon || null);
 
     let params = new HttpParams();
     if (timeHorizon) {
@@ -63,6 +66,21 @@ export class Tasks {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async createTask(data: TaskCreate): Promise<Task> {
+    const task = await this.http.post<Task>(this.apiUrl, data).toPromise();
+
+    // Reload current view's tasks if the new task belongs to it
+    const horizon = this.currentHorizon();
+    if (horizon && task && task.time_horizon === horizon) {
+      await this.loadTasks(horizon);
+    }
+
+    // Refresh sidebar counts
+    this.loadCounts();
+
+    return task!;
   }
 
   clearTasks(): void {
