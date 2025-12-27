@@ -1,0 +1,39 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+}
+
+.primary {
+  font-size: 18px;
+  font-weight: 500;
+  color: #57534E;
+  margin: 0 0 8px 0;
+}
+
+.secondary {
+  font-size: 14px;
+  font-weight: 400;
+  color: #A8A29E;
+  margin: 0 0 24px 0;
+}
+
+.action {
+  padding: 10px 20px;
+  border: 1px solid #E7E5E4;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2563EB;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.action:hover {
+  background-color: #EFF6FF;
+  border-color: #2563EB;
+}

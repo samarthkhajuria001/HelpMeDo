@@ -1,11 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { Tasks } from '../../core/services';
+import { SectionHeader } from '../../shared/components/section-header/section-header';
+import { EmptyState } from '../../shared/components/empty-state/empty-state';
 
 @Component({
   selector: 'app-today',
-  imports: [],
+  imports: [SectionHeader, EmptyState],
   templateUrl: './today.html',
   styleUrl: './today.css',
 })
-export class Today {
+export class Today implements OnInit {
+  private tasksService = inject(Tasks);
 
+  tasks = this.tasksService.tasks;
+  loading = this.tasksService.loading;
+  tasksByPriority = this.tasksService.tasksByPriority;
+
+  ngOnInit() {
+    this.tasksService.loadTasks('today');
+  }
 }

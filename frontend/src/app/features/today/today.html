@@ -1,4 +1,27 @@
 <div>
-  <h1 class="text-2xl font-semibold text-text-primary mb-2">Today</h1>
-  <p class="text-text-secondary">Tasks for today will appear here.</p>
+  <h1 class="text-2xl font-semibold text-text-primary mb-6">Today</h1>
+
+  @if (loading()) {
+    <p class="text-text-tertiary">Loading tasks...</p>
+  } @else if (tasks().length === 0) {
+    <app-empty-state variant="no_tasks" />
+  } @else {
+    <!-- High Priority -->
+    @if (tasksByPriority().high.length > 0) {
+      <app-section-header title="High Priority" [count]="tasksByPriority().high.length" />
+      <p class="text-text-secondary text-sm mb-4">TaskRow components will go here</p>
+    }
+
+    <!-- Medium Priority -->
+    @if (tasksByPriority().medium.length > 0) {
+      <app-section-header title="Medium Priority" [count]="tasksByPriority().medium.length" />
+      <p class="text-text-secondary text-sm mb-4">TaskRow components will go here</p>
+    }
+
+    <!-- Low Priority -->
+    @if (tasksByPriority().low.length > 0) {
+      <app-section-header title="Low Priority" [count]="tasksByPriority().low.length" />
+      <p class="text-text-secondary text-sm mb-4">TaskRow components will go here</p>
+    }
+  }
 </div>

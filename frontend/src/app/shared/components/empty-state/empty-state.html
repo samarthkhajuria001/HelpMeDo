@@ -1,0 +1,9 @@
+<div class="empty-state">
+  <p class="primary">{{ config().primary }}</p>
+  <p class="secondary">{{ config().secondary }}</p>
+  @if (config().actionLabel) {
+    <button class="action" (click)="onAction()">
+      {{ config().actionLabel }}
+    </button>
+  }
+</div>
