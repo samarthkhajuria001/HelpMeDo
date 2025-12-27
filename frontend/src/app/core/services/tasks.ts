@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Task, TaskCreate, TaskUpdate, TimeHorizon } from '../models';
+import { Task, TaskCreate, TaskUpdate, TimeHorizon, Subtask, SubtaskUpdate } from '../models';
 
 function calculateTimeHorizon(dateStr: string | null): TimeHorizon {
   if (!dateStr) return 'someday';
@@ -167,5 +167,48 @@ export class Tasks {
     } catch {
       // Silently fail for counts
     }
+  }
+
+  async createSubtask(taskId: string, title: string): Promise<Subtask> {
+    const task = this.tasks().find(t => t.id === taskId);
+    const order = task?.subtasks.length || 0;
+
+    const subtask = await this.http.post<Subtask>(
+      `${this.apiUrl}/${taskId}/subtasks`,
+      { title, description: '', order }
+    ).toPromise();
+
+    this.tasks.update(tasks => tasks.map(t =>
+      t.id === taskId
+        ? { ...t, subtasks: [...t.subtasks, subtask!] }
+        : t
+    ));
+
+    return subtask!;
+  }
+
+  async updateSubtask(taskId: string, subtaskId: string, data: SubtaskUpdate): Promise<Subtask> {
+    const subtask = await this.http.patch<Subtask>(
+      `${this.apiUrl}/${taskId}/subtasks/${subtaskId}`,
+      data
+    ).toPromise();
+
+    this.tasks.update(tasks => tasks.map(t =>
+      t.id === taskId
+        ? { ...t, subtasks: t.subtasks.map(s => s.id === subtaskId ? { ...s, ...data } : s) }
+        : t
+    ));
+
+    return subtask!;
+  }
+
+  async deleteSubtask(taskId: string, subtaskId: string): Promise<void> {
+    await this.http.delete(`${this.apiUrl}/${taskId}/subtasks/${subtaskId}`).toPromise();
+
+    this.tasks.update(tasks => tasks.map(t =>
+      t.id === taskId
+        ? { ...t, subtasks: t.subtasks.filter(s => s.id !== subtaskId) }
+        : t
+    ));
   }
 }

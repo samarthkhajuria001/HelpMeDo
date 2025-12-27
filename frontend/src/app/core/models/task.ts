@@ -59,3 +59,8 @@ export interface TaskUpdate {
   due_time?: string | null;
   time_horizon?: TimeHorizon;
 }
+
+export interface SubtaskUpdate {
+  title?: string;
+  status?: SubtaskStatus;
+}
