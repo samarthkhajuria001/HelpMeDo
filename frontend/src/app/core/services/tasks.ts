@@ -9,6 +9,12 @@ export interface TasksByPriority {
   low: Task[];
 }
 
+export interface TaskCounts {
+  today: number;
+  week: number;
+  someday: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class Tasks {
   private http = inject(HttpClient);
@@ -17,6 +23,7 @@ export class Tasks {
   tasks = signal<Task[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
+  counts = signal<TaskCounts>({ today: 0, week: 0, someday: 0 });
 
   tasksByPriority = computed<TasksByPriority>(() => {
     const allTasks = this.tasks();
@@ -61,5 +68,23 @@ export class Tasks {
   clearTasks(): void {
     this.tasks.set([]);
     this.error.set(null);
+  }
+
+  async loadCounts(): Promise<void> {
+    try {
+      const [today, week, someday] = await Promise.all([
+        this.http.get<Task[]>(this.apiUrl, { params: { time_horizon: 'today' } }).toPromise(),
+        this.http.get<Task[]>(this.apiUrl, { params: { time_horizon: 'week' } }).toPromise(),
+        this.http.get<Task[]>(this.apiUrl, { params: { time_horizon: 'someday' } }).toPromise()
+      ]);
+
+      this.counts.set({
+        today: (today || []).filter(t => t.status === 'pending').length,
+        week: (week || []).filter(t => t.status === 'pending').length,
+        someday: (someday || []).filter(t => t.status === 'pending').length
+      });
+    } catch {
+      // Silently fail for counts
+    }
   }
 }

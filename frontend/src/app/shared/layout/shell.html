@@ -15,9 +15,9 @@
 
       <!-- Navigation -->
       <nav class="p-4 space-y-1">
-        <app-nav-item label="Today" route="/today" [count]="5" />
-        <app-nav-item label="This Week" route="/week" [count]="12" />
-        <app-nav-item label="Someday" route="/someday" [count]="8" />
+        <app-nav-item label="Today" route="/today" [count]="counts().today || null" />
+        <app-nav-item label="This Week" route="/week" [count]="counts().week || null" />
+        <app-nav-item label="Someday" route="/someday" [count]="counts().someday || null" />
       </nav>
 
       <!-- Goals -->
@@ -36,9 +36,9 @@
 
           <!-- Navigation -->
           <nav class="p-4 space-y-1">
-            <app-nav-item label="Today" route="/today" [count]="5" (click)="closeSidebar()" />
-            <app-nav-item label="This Week" route="/week" [count]="12" (click)="closeSidebar()" />
-            <app-nav-item label="Someday" route="/someday" [count]="8" (click)="closeSidebar()" />
+            <app-nav-item label="Today" route="/today" [count]="counts().today || null" (click)="closeSidebar()" />
+            <app-nav-item label="This Week" route="/week" [count]="counts().week || null" (click)="closeSidebar()" />
+            <app-nav-item label="Someday" route="/someday" [count]="counts().someday || null" (click)="closeSidebar()" />
           </nav>
 
           <!-- Goals -->
