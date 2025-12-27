@@ -9,19 +9,25 @@
     <!-- High Priority -->
     @if (tasksByPriority().high.length > 0) {
       <app-section-header title="High Priority" [count]="tasksByPriority().high.length" />
-      <p class="text-text-secondary text-sm mb-4">TaskRow components will go here</p>
+      @for (task of tasksByPriority().high; track task.id) {
+        <app-task-row [task]="task" />
+      }
     }
 
     <!-- Medium Priority -->
     @if (tasksByPriority().medium.length > 0) {
       <app-section-header title="Medium Priority" [count]="tasksByPriority().medium.length" />
-      <p class="text-text-secondary text-sm mb-4">TaskRow components will go here</p>
+      @for (task of tasksByPriority().medium; track task.id) {
+        <app-task-row [task]="task" />
+      }
     }
 
     <!-- Low Priority -->
     @if (tasksByPriority().low.length > 0) {
       <app-section-header title="Low Priority" [count]="tasksByPriority().low.length" />
-      <p class="text-text-secondary text-sm mb-4">TaskRow components will go here</p>
+      @for (task of tasksByPriority().low; track task.id) {
+        <app-task-row [task]="task" />
+      }
     }
   }
 </div>
