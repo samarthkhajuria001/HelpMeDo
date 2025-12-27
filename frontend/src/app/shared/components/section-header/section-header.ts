@@ -9,4 +9,5 @@ import { Component, input } from '@angular/core';
 export class SectionHeader {
   title = input.required<string>();
   count = input<number | null>(null);
+  total = input<number | null>(null);
 }

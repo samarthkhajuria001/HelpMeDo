@@ -6,7 +6,7 @@
   padding: 14px 8px;
   border-bottom: 1px solid #F5F5F4;
   cursor: pointer;
-  transition: background-color 150ms ease-out;
+  transition: background-color 50ms ease-out;
   border-radius: 8px;
   margin: 0 -8px;
 }
@@ -16,25 +16,38 @@
 }
 
 .task-row.completed {
-  opacity: 0.6;
+  opacity: 0.5;
+  background-color: #FAFAF9;
 }
 
 /* Checkbox */
 .checkbox {
   width: 20px;
   height: 20px;
+  padding: 0;
   border: 2px solid #D6D3D1;
   border-radius: 50%;
+  background: transparent;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   transition: all 150ms ease-out;
+}
+
+.checkbox:hover {
+  border-color: #A8A29E;
 }
 
 .checkbox.checked {
   background-color: #22C55E;
   border-color: #22C55E;
+}
+
+.checkbox.checked:hover {
+  background-color: #16A34A;
+  border-color: #16A34A;
 }
 
 .check-icon {
@@ -94,4 +107,104 @@
 .due-date {
   font-size: 13px;
   color: #A8A29E;
+}
+
+/* Created date */
+.created-date {
+  font-size: 12px;
+  color: #D6D3D1;
+  flex-shrink: 0;
+}
+
+/* Delete action */
+.delete-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 100ms ease-out;
+}
+
+.task-row:hover .delete-action,
+.task-row.deleting .delete-action {
+  opacity: 1;
+}
+
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 100ms ease-out;
+}
+
+.delete-btn:hover {
+  background-color: #FEE2E2;
+}
+
+.delete-btn svg {
+  width: 16px;
+  height: 16px;
+  color: #A8A29E;
+  transition: color 100ms ease-out;
+}
+
+.delete-btn:hover svg {
+  color: #DC2626;
+}
+
+/* Delete timer */
+.delete-timer {
+  width: 24px;
+  height: 24px;
+}
+
+.timer-ring {
+  width: 24px;
+  height: 24px;
+  transform: rotate(-90deg);
+}
+
+.timer-bg {
+  fill: none;
+  stroke: #E7E5E4;
+  stroke-width: 2;
+}
+
+.timer-progress {
+  fill: none;
+  stroke: #DC2626;
+  stroke-width: 2;
+  stroke-dasharray: 63;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 50ms linear;
+}
+
+/* Undo button */
+.undo-btn {
+  padding: 4px 8px;
+  border: none;
+  background: #FEE2E2;
+  color: #DC2626;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 100ms ease-out;
+}
+
+.undo-btn:hover {
+  background-color: #FECACA;
+}
+
+/* Deleting state */
+.task-row.deleting {
+  background-color: #FEF2F2;
 }

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { Task, TaskCreate, TimeHorizon } from '../models';
+import { Task, TaskCreate, TaskUpdate, TimeHorizon } from '../models';
 
 export interface TasksByPriority {
   high: Task[];
@@ -81,6 +81,32 @@ export class Tasks {
     this.loadCounts();
 
     return task!;
+  }
+
+  async updateTask(id: string, data: TaskUpdate): Promise<Task> {
+    const task = await this.http.patch<Task>(`${this.apiUrl}/${id}`, data).toPromise();
+
+    // Update local state
+    this.tasks.update(tasks =>
+      tasks.map(t => t.id === id ? { ...t, ...data } : t)
+    );
+
+    // Refresh counts if status changed
+    if (data.status) {
+      this.loadCounts();
+    }
+
+    return task!;
+  }
+
+  async deleteTask(id: string): Promise<void> {
+    await this.http.delete(`${this.apiUrl}/${id}`).toPromise();
+
+    // Remove from local state
+    this.tasks.update(tasks => tasks.filter(t => t.id !== id));
+
+    // Refresh sidebar counts
+    this.loadCounts();
   }
 
   clearTasks(): void {

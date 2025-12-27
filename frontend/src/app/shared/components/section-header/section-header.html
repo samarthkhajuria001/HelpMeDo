@@ -1,6 +1,8 @@
 <div class="section-header">
   <h3 class="title">{{ title() }}</h3>
-  @if (count() !== null) {
+  @if (count() !== null && total() !== null) {
+    <span class="count">{{ count() }}/{{ total() }}</span>
+  } @else if (count() !== null) {
     <span class="count">{{ count() }}</span>
   }
 </div>
