@@ -1,3 +1,17 @@
+/* Wrapper */
+.task-row-wrapper {
+  border-radius: 8px;
+  margin: 0 -8px;
+  transition: all 200ms ease-out;
+}
+
+.task-row-wrapper.expanded {
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  margin: 8px -8px;
+}
+
+/* Task row */
 .task-row {
   display: flex;
   align-items: center;
@@ -8,16 +22,28 @@
   cursor: pointer;
   transition: background-color 50ms ease-out;
   border-radius: 8px;
-  margin: 0 -8px;
+}
+
+.task-row-wrapper.expanded .task-row {
+  border-bottom: 1px solid #E7E5E4;
+  border-radius: 8px 8px 0 0;
 }
 
 .task-row:hover {
   background-color: #EDEDED;
 }
 
+.task-row-wrapper.expanded .task-row:hover {
+  background-color: transparent;
+}
+
 .task-row.completed {
   opacity: 0.5;
   background-color: #FAFAF9;
+}
+
+.task-row-wrapper.expanded .task-row.completed {
+  background-color: transparent;
 }
 
 /* Checkbox */
@@ -219,4 +245,131 @@
 /* Deleting state */
 .task-row.deleting {
   background-color: #FEF2F2;
+}
+
+/* Expand chevron */
+.expand-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all 150ms ease-out;
+}
+
+.task-row:hover .expand-chevron,
+.task-row-wrapper.expanded .expand-chevron {
+  opacity: 1;
+}
+
+.expand-chevron svg {
+  width: 16px;
+  height: 16px;
+  color: #A8A29E;
+  transition: transform 200ms ease-out;
+}
+
+.expand-chevron.rotated svg {
+  transform: rotate(180deg);
+}
+
+/* Expanded panel */
+.expanded-panel {
+  padding: 16px;
+  padding-top: 12px;
+}
+
+.panel-section {
+  margin-bottom: 16px;
+}
+
+.panel-section:last-child {
+  margin-bottom: 0;
+}
+
+.section-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #78716C;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.notes-input {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1C1917;
+  background-color: #FAFAF9;
+  border: 1px solid #E7E5E4;
+  border-radius: 6px;
+  resize: vertical;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.notes-input:focus {
+  outline: none;
+  border-color: #A8A29E;
+  background-color: #FFFFFF;
+}
+
+.notes-input::placeholder {
+  color: #A8A29E;
+}
+
+/* Metadata row */
+.metadata-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metadata-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #A8A29E;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metadata-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1C1917;
+}
+
+/* Panel actions */
+.panel-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid #F5F5F4;
+}
+
+.delete-text-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #DC2626;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 100ms ease-out;
+}
+
+.delete-text-btn:hover {
+  background-color: #FEE2E2;
 }

@@ -11,7 +11,15 @@
   @if (tasksByPriority().high.length > 0) {
     <app-section-header title="High Priority" [count]="completedCounts().high" [total]="tasksByPriority().high.length" />
     @for (task of tasksByPriority().high; track task.id) {
-      <app-task-row [task]="task" (statusChange)="onStatusChange(task, $event)" (titleChange)="onTitleChange(task, $event)" (delete)="onDelete(task)" />
+      <app-task-row
+        [task]="task"
+        [expanded]="expandedTaskId() === task.id"
+        (expandToggle)="onExpandToggle(task.id)"
+        (statusChange)="onStatusChange(task, $event)"
+        (titleChange)="onTitleChange(task, $event)"
+        (descriptionChange)="onDescriptionChange(task, $event)"
+        (delete)="onDelete(task)"
+      />
     }
   }
 
@@ -19,7 +27,15 @@
   @if (tasksByPriority().medium.length > 0) {
     <app-section-header title="Medium Priority" [count]="completedCounts().medium" [total]="tasksByPriority().medium.length" />
     @for (task of tasksByPriority().medium; track task.id) {
-      <app-task-row [task]="task" (statusChange)="onStatusChange(task, $event)" (titleChange)="onTitleChange(task, $event)" (delete)="onDelete(task)" />
+      <app-task-row
+        [task]="task"
+        [expanded]="expandedTaskId() === task.id"
+        (expandToggle)="onExpandToggle(task.id)"
+        (statusChange)="onStatusChange(task, $event)"
+        (titleChange)="onTitleChange(task, $event)"
+        (descriptionChange)="onDescriptionChange(task, $event)"
+        (delete)="onDelete(task)"
+      />
     }
   }
 
@@ -27,7 +43,15 @@
   @if (tasksByPriority().low.length > 0) {
     <app-section-header title="Low Priority" [count]="completedCounts().low" [total]="tasksByPriority().low.length" />
     @for (task of tasksByPriority().low; track task.id) {
-      <app-task-row [task]="task" (statusChange)="onStatusChange(task, $event)" (titleChange)="onTitleChange(task, $event)" (delete)="onDelete(task)" />
+      <app-task-row
+        [task]="task"
+        [expanded]="expandedTaskId() === task.id"
+        (expandToggle)="onExpandToggle(task.id)"
+        (statusChange)="onStatusChange(task, $event)"
+        (titleChange)="onTitleChange(task, $event)"
+        (descriptionChange)="onDescriptionChange(task, $event)"
+        (delete)="onDelete(task)"
+      />
     }
   }
 }

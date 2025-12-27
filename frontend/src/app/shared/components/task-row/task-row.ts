@@ -1,17 +1,22 @@
 import { Component, input, output, computed, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TitleCasePipe } from '@angular/common';
 import { Task, Status } from '../../../core/models';
 
 @Component({
   selector: 'app-task-row',
-  imports: [FormsModule],
+  imports: [FormsModule, TitleCasePipe],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })
 export class TaskRow implements OnDestroy {
   task = input.required<Task>();
+  expanded = input(false);
+
   statusChange = output<Status>();
   titleChange = output<string>();
+  descriptionChange = output<string>();
+  expandToggle = output<void>();
   delete = output<void>();
 
   isCompleted = computed(() => this.task().status === 'completed');
@@ -30,6 +35,23 @@ export class TaskRow implements OnDestroy {
     event.stopPropagation();
     const newStatus: Status = this.isCompleted() ? 'pending' : 'completed';
     this.statusChange.emit(newStatus);
+  }
+
+  toggleExpand() {
+    if (!this.editing() && !this.deleting()) {
+      this.expandToggle.emit();
+    }
+  }
+
+  // Notes editing
+  onNotesBlur(event: FocusEvent) {
+    const textarea = event.target as HTMLTextAreaElement;
+    const newDescription = textarea.value.trim();
+    const currentDescription = this.task().description || '';
+
+    if (newDescription !== currentDescription) {
+      this.descriptionChange.emit(newDescription);
+    }
   }
 
   startEdit(event: Event) {

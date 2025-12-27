@@ -1,65 +1,118 @@
-<div class="task-row" [class.completed]="isCompleted()" [class.deleting]="deleting()">
-  <!-- Checkbox -->
-  <button type="button" class="checkbox" [class.checked]="isCompleted()" (click)="toggleStatus($event)">
-    @if (isCompleted()) {
-      <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+<div class="task-row-wrapper" [class.expanded]="expanded()">
+  <!-- Collapsed row -->
+  <div class="task-row" [class.completed]="isCompleted()" [class.deleting]="deleting()" (click)="toggleExpand()">
+    <!-- Checkbox -->
+    <button type="button" class="checkbox" [class.checked]="isCompleted()" (click)="toggleStatus($event)">
+      @if (isCompleted()) {
+        <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+      }
+    </button>
+
+    <!-- Content -->
+    <div class="content">
+      @if (editing()) {
+        <input
+          type="text"
+          class="title-input"
+          [ngModel]="editedTitle()"
+          (ngModelChange)="editedTitle.set($event)"
+          (blur)="saveEdit()"
+          (keydown)="onEditKeydown($event)"
+          autofocus
+        />
+      } @else {
+        <span class="title" [class]="priorityClass()" (click)="startEdit($event)">{{ task().title }}</span>
+      }
+    </div>
+
+    <!-- Meta -->
+    <div class="meta">
+      @if (task().goal_id) {
+        <div class="goal-dot"></div>
+      }
+      <!-- Show ONE date: due_date if set, otherwise created_at -->
+      @if (formattedDueDate()) {
+        <span class="due-date">{{ formattedDueDate() }}</span>
+      } @else if (formattedCreatedDate()) {
+        <span class="created-date">{{ formattedCreatedDate() }}</span>
+      }
+    </div>
+
+    <!-- Expand chevron -->
+    <div class="expand-chevron" [class.rotated]="expanded()">
+      <svg viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
       </svg>
-    }
-  </button>
+    </div>
 
-  <!-- Content -->
-  <div class="content">
-    @if (editing()) {
-      <input
-        type="text"
-        class="title-input"
-        [ngModel]="editedTitle()"
-        (ngModelChange)="editedTitle.set($event)"
-        (blur)="saveEdit()"
-        (keydown)="onEditKeydown($event)"
-        autofocus
-      />
-    } @else {
-      <span class="title" [class]="priorityClass()" (click)="startEdit($event)">{{ task().title }}</span>
-    }
+    <!-- Delete action -->
+    <div class="delete-action">
+      @if (deleting()) {
+        <div class="delete-timer">
+          <svg class="timer-ring" viewBox="0 0 24 24">
+            <circle class="timer-bg" cx="12" cy="12" r="10" />
+            <circle
+              class="timer-progress"
+              cx="12" cy="12" r="10"
+              [style.stroke-dashoffset]="63 - (63 * deleteProgress() / 100)"
+            />
+          </svg>
+        </div>
+        <button type="button" class="undo-btn" (click)="undoDelete($event)">
+          Undo
+        </button>
+      } @else {
+        <button type="button" class="delete-btn" (click)="startDelete($event)">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      }
+    </div>
   </div>
 
-  <!-- Meta -->
-  <div class="meta">
-    @if (task().goal_id) {
-      <div class="goal-dot"></div>
-    }
-    <!-- Show ONE date: due_date if set, otherwise created_at -->
-    @if (formattedDueDate()) {
-      <span class="due-date">{{ formattedDueDate() }}</span>
-    } @else if (formattedCreatedDate()) {
-      <span class="created-date">{{ formattedCreatedDate() }}</span>
-    }
-  </div>
-
-  <!-- Delete action -->
-  <div class="delete-action">
-    @if (deleting()) {
-      <div class="delete-timer">
-        <svg class="timer-ring" viewBox="0 0 24 24">
-          <circle class="timer-bg" cx="12" cy="12" r="10" />
-          <circle
-            class="timer-progress"
-            cx="12" cy="12" r="10"
-            [style.stroke-dashoffset]="63 - (63 * deleteProgress() / 100)"
-          />
-        </svg>
+  <!-- Expanded panel -->
+  @if (expanded()) {
+    <div class="expanded-panel" (click)="$event.stopPropagation()">
+      <!-- Notes section -->
+      <div class="panel-section">
+        <label class="section-label">Notes</label>
+        <textarea
+          class="notes-input"
+          placeholder="Add notes..."
+          [value]="task().description || ''"
+          (blur)="onNotesBlur($event)"
+          (click)="$event.stopPropagation()"
+          rows="3"
+        ></textarea>
       </div>
-      <button type="button" class="undo-btn" (click)="undoDelete($event)">
-        Undo
-      </button>
-    } @else {
-      <button type="button" class="delete-btn" (click)="startDelete($event)">
-        <svg viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-        </svg>
-      </button>
-    }
-  </div>
+
+      <!-- Metadata section -->
+      <div class="panel-section metadata-row">
+        <div class="metadata-item">
+          <span class="metadata-label">Priority</span>
+          <span class="metadata-value">{{ task().priority | titlecase }}</span>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Due</span>
+          <span class="metadata-value">{{ formattedDueDate() || 'Today' }}</span>
+        </div>
+        @if (task().goal_id) {
+          <div class="metadata-item">
+            <span class="metadata-label">Goal</span>
+            <span class="metadata-value">Linked</span>
+          </div>
+        }
+      </div>
+
+      <!-- Delete action in expanded view -->
+      <div class="panel-section panel-actions">
+        <button type="button" class="delete-text-btn" (click)="startDelete($event)">
+          Delete task
+        </button>
+      </div>
+    </div>
+  }
 </div>
