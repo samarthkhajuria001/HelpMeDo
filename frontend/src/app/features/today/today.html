@@ -1,33 +1,4 @@
 <div>
   <h1 class="text-2xl font-semibold text-text-primary mb-6">Today</h1>
-
-  @if (loading()) {
-    <p class="text-text-tertiary">Loading tasks...</p>
-  } @else if (tasks().length === 0) {
-    <app-empty-state variant="no_tasks" />
-  } @else {
-    <!-- High Priority -->
-    @if (tasksByPriority().high.length > 0) {
-      <app-section-header title="High Priority" [count]="tasksByPriority().high.length" />
-      @for (task of tasksByPriority().high; track task.id) {
-        <app-task-row [task]="task" />
-      }
-    }
-
-    <!-- Medium Priority -->
-    @if (tasksByPriority().medium.length > 0) {
-      <app-section-header title="Medium Priority" [count]="tasksByPriority().medium.length" />
-      @for (task of tasksByPriority().medium; track task.id) {
-        <app-task-row [task]="task" />
-      }
-    }
-
-    <!-- Low Priority -->
-    @if (tasksByPriority().low.length > 0) {
-      <app-section-header title="Low Priority" [count]="tasksByPriority().low.length" />
-      @for (task of tasksByPriority().low; track task.id) {
-        <app-task-row [task]="task" />
-      }
-    }
-  }
+  <app-task-list [tasks]="tasks()" [loading]="loading()" />
 </div>
