@@ -48,6 +48,7 @@ export class Tasks {
   counts = signal<TaskCounts>({ today: 0, week: 0, someday: 0 });
 
   private currentHorizon = signal<TimeHorizon | null>(null);
+  private currentGoalId = signal<string | null>(null);
 
   tasksByPriority = computed<TasksByPriority>(() => {
     const allTasks = this.tasks();
@@ -70,6 +71,7 @@ export class Tasks {
     this.loading.set(true);
     this.error.set(null);
     this.currentHorizon.set(timeHorizon || null);
+    this.currentGoalId.set(goalId || null);
 
     let params = new HttpParams();
     if (timeHorizon) {
@@ -95,7 +97,13 @@ export class Tasks {
 
     // Reload current view's tasks if the new task belongs to it
     const horizon = this.currentHorizon();
-    if (horizon && task && task.time_horizon === horizon) {
+    const goalId = this.currentGoalId();
+
+    if (goalId && task && task.goal_id === goalId) {
+      // On goal view - reload if task belongs to this goal
+      await this.loadTasks(undefined, goalId);
+    } else if (horizon && task && task.time_horizon === horizon) {
+      // On horizon view - reload if task belongs to this horizon
       await this.loadTasks(horizon);
     }
 
