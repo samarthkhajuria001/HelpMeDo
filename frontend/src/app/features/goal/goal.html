@@ -1,0 +1,18 @@
+<div class="goal-page">
+  @if (goal()) {
+    <div class="goal-header">
+      <span class="goal-dot" [style.background-color]="goalColor()"></span>
+      <h1 class="goal-title">{{ goal()!.name }}</h1>
+    </div>
+    <app-quick-add [defaultGoalId]="goalId()" class="block mb-6" />
+    <app-task-list [tasks]="tasks()" [loading]="loading()" />
+  } @else if (loading()) {
+    <div class="goal-loading">
+      <div class="skeleton-title"></div>
+    </div>
+  } @else {
+    <div class="goal-not-found">
+      <span class="not-found-text">Goal not found</span>
+    </div>
+  }
+</div>
