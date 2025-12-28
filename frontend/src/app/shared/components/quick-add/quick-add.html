@@ -30,6 +30,12 @@
         [value]="dueDate()"
         (change)="onDateChange($event)"
       />
+      <app-select-dropdown
+        [options]="goalOptions()"
+        [value]="goalId() || ''"
+        (change)="onGoalChange($event)"
+        placeholder="Goal"
+      />
       <button
         type="button"
         class="add-btn"

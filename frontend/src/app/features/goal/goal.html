@@ -7,7 +7,7 @@
       (edit)="onEdit()"
       (archive)="onArchive()"
     />
-    <app-quick-add class="block mb-6" />
+    <app-quick-add [defaultGoalId]="goalId()" class="block mb-6" />
     <app-task-list [tasks]="tasks()" [loading]="loading()" />
   } @else if (loading()) {
     <div class="goal-loading">

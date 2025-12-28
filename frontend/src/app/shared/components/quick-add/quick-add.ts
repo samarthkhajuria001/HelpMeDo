@@ -1,6 +1,6 @@
-import { Component, inject, input, signal, computed } from '@angular/core';
+import { Component, inject, input, signal, computed, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Tasks } from '../../../core/services';
+import { Tasks, Goals } from '../../../core/services';
 import { TimeHorizon, Priority } from '../../../core/models';
 import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown';
 import { DatePicker } from '../date-picker/date-picker';
@@ -13,8 +13,10 @@ import { DatePicker } from '../date-picker/date-picker';
 })
 export class QuickAdd {
   private tasksService = inject(Tasks);
+  private goalsService = inject(Goals);
 
   defaultHorizon = input<TimeHorizon>('today');
+  defaultGoalId = input<string | null>(null);
 
   title = signal('');
   submitting = signal(false);
@@ -22,6 +24,32 @@ export class QuickAdd {
 
   priority = signal<Priority>('medium');
   dueDate = signal<string | null>(null);
+  goalId = signal<string | null>(null);
+
+  constructor() {
+    // Sync goalId with defaultGoalId when it changes
+    effect(() => {
+      const defaultId = this.defaultGoalId();
+      if (defaultId) {
+        this.goalId.set(defaultId);
+      }
+    });
+  }
+
+  goalOptions = computed<SelectOption[]>(() => {
+    const goals = this.goalsService.goals();
+    const options: SelectOption[] = [
+      { value: '', label: 'No goal' }
+    ];
+    goals.forEach(g => {
+      options.push({
+        value: g.id,
+        label: g.name,
+        dotColor: this.goalsService.getGoalColor(g.id) || undefined
+      });
+    });
+    return options;
+  });
 
   effectiveHorizon = computed(() => {
     const date = this.dueDate();
@@ -48,7 +76,8 @@ export class QuickAdd {
         title: titleValue,
         time_horizon: this.effectiveHorizon(),
         priority: this.priority(),
-        due_date: this.dueDate()
+        due_date: this.dueDate(),
+        goal_id: this.goalId() || null
       });
       this.resetForm();
     } catch (err) {
@@ -64,6 +93,10 @@ export class QuickAdd {
 
   onDateChange(date: string | null) {
     this.dueDate.set(date);
+  }
+
+  onGoalChange(value: string) {
+    this.goalId.set(value || null);
   }
 
   // Parse YYYY-MM-DD string as local date (not UTC)
@@ -88,6 +121,7 @@ export class QuickAdd {
     this.title.set('');
     this.priority.set('medium');
     this.dueDate.set(null);
+    this.goalId.set(this.defaultGoalId());
     this.expanded.set(false);
   }
 
