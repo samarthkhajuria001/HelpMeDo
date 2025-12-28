@@ -1,15 +1,16 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Tasks, Goals } from '../../core/services';
-import { Goal as GoalModel } from '../../core/models';
+import { Goal as GoalModel, GoalUpdate } from '../../core/models';
 import { TaskList } from '../../shared/components/task-list/task-list';
 import { QuickAdd } from '../../shared/components/quick-add/quick-add';
 import { GoalHeader } from '../../shared/components/goal-header/goal-header';
+import { EditGoalModal } from '../../shared/components/edit-goal-modal/edit-goal-modal';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-goal',
-  imports: [TaskList, QuickAdd, GoalHeader],
+  imports: [TaskList, QuickAdd, GoalHeader, EditGoalModal],
   templateUrl: './goal.html',
   styleUrl: './goal.css',
 })
@@ -71,6 +72,30 @@ export class Goal implements OnInit, OnDestroy {
       this.router.navigate(['/today']);
     } catch (err) {
       console.error('Failed to archive goal:', err);
+    }
+  }
+
+  async onSaveGoal(updates: GoalUpdate) {
+    const g = this.goal();
+    if (!g) return;
+
+    try {
+      await this.goalsService.updateGoal(g.id, updates);
+      this.closeEditModal();
+    } catch (err) {
+      console.error('Failed to update goal:', err);
+    }
+  }
+
+  async onDeleteGoal() {
+    const g = this.goal();
+    if (!g) return;
+
+    try {
+      await this.goalsService.deleteGoal(g.id);
+      this.router.navigate(['/today']);
+    } catch (err) {
+      console.error('Failed to delete goal:', err);
     }
   }
 }

@@ -19,3 +19,12 @@
     </div>
   }
 </div>
+
+@if (showEditModal() && goal()) {
+  <app-edit-goal-modal
+    [goal]="goal()!"
+    (close)="closeEditModal()"
+    (save)="onSaveGoal($event)"
+    (delete)="onDeleteGoal()"
+  />
+}
