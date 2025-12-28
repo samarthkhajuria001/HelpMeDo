@@ -1,0 +1,11 @@
+<a
+  class="goal-nav-item"
+  [routerLink]="routerPath()"
+  routerLinkActive="active"
+>
+  <span class="dot" [style.background-color]="dotColor()"></span>
+  <span class="name">{{ goal().name }}</span>
+  @if (count() > 0) {
+    <span class="count">{{ count() }}</span>
+  }
+</a>

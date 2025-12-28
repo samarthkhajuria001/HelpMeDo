@@ -1,0 +1,48 @@
+.goal-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #57534E;
+  text-decoration: none;
+  transition: all 150ms ease-out;
+}
+
+.goal-nav-item:hover {
+  background-color: #EDEDED;
+}
+
+.goal-nav-item.active {
+  background-color: #FFFFFF;
+  color: #1C1917;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.count {
+  font-size: 13px;
+  color: #A8A29E;
+  font-weight: 400;
+  flex-shrink: 0;
+}
+
+.goal-nav-item.active .count {
+  color: #57534E;
+}
