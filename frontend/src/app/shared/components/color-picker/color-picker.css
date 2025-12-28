@@ -1,0 +1,23 @@
+.color-picker {
+  display: flex;
+  gap: 12px;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+  padding: 0;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+}
+
+.color-option.selected {
+  border-color: #1C1917;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #1C1917;
+}

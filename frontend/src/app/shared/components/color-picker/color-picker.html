@@ -1,0 +1,13 @@
+<div class="color-picker">
+  @for (color of colors; track color.value) {
+    <button
+      type="button"
+      class="color-option"
+      [class.selected]="value() === color.value"
+      [style.background-color]="color.hex"
+      [attr.aria-label]="color.label"
+      [attr.title]="color.label"
+      (click)="selectColor(color.value)"
+    ></button>
+  }
+</div>
