@@ -89,6 +89,20 @@
         ></textarea>
       </div>
 
+      <!-- Subtasks section -->
+      <div class="panel-section">
+        <label class="section-label">Subtasks</label>
+        @for (subtask of task().subtasks; track subtask.id) {
+          <app-subtask-item
+            [subtask]="subtask"
+            (statusChange)="onSubtaskStatusChange(subtask, $event)"
+            (titleChange)="onSubtaskTitleChange(subtask, $event)"
+            (delete)="onSubtaskDelete(subtask)"
+          />
+        }
+        <app-subtask-add (create)="onSubtaskCreate($event)" />
+      </div>
+
       <!-- Metadata section -->
       <div class="panel-section metadata-row">
         <div class="metadata-item">

@@ -1,0 +1,54 @@
+.add-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #78716C;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 100ms ease-out;
+}
+
+.add-link:hover {
+  color: #57534E;
+  background-color: #FAFAF9;
+}
+
+.plus-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.subtask-add-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 4px;
+}
+
+.checkbox-placeholder {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #E7E5E4;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  font-size: 14px;
+  color: #1C1917;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+}
+
+.input::placeholder {
+  color: #A8A29E;
+}

@@ -19,6 +19,10 @@
         (priorityChange)="onPriorityChange(task, $event)"
         (dueDateChange)="onDueDateChange(task, $event)"
         (delete)="onDelete(task)"
+        (subtaskCreate)="onSubtaskCreate(task, $event)"
+        (subtaskStatusChange)="onSubtaskStatusChange(task, $event.subtask, $event.status)"
+        (subtaskTitleChange)="onSubtaskTitleChange(task, $event.subtask, $event.title)"
+        (subtaskDelete)="onSubtaskDelete(task, $event)"
       />
     }
   }
@@ -35,6 +39,10 @@
         (priorityChange)="onPriorityChange(task, $event)"
         (dueDateChange)="onDueDateChange(task, $event)"
         (delete)="onDelete(task)"
+        (subtaskCreate)="onSubtaskCreate(task, $event)"
+        (subtaskStatusChange)="onSubtaskStatusChange(task, $event.subtask, $event.status)"
+        (subtaskTitleChange)="onSubtaskTitleChange(task, $event.subtask, $event.title)"
+        (subtaskDelete)="onSubtaskDelete(task, $event)"
       />
     }
   }
@@ -51,6 +59,10 @@
         (priorityChange)="onPriorityChange(task, $event)"
         (dueDateChange)="onDueDateChange(task, $event)"
         (delete)="onDelete(task)"
+        (subtaskCreate)="onSubtaskCreate(task, $event)"
+        (subtaskStatusChange)="onSubtaskStatusChange(task, $event.subtask, $event.status)"
+        (subtaskTitleChange)="onSubtaskTitleChange(task, $event.subtask, $event.title)"
+        (subtaskDelete)="onSubtaskDelete(task, $event)"
       />
     }
   }

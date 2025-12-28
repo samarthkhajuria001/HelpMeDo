@@ -1,13 +1,15 @@
 import { Component, input, output, computed, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
-import { Task, Status, Priority } from '../../../core/models';
+import { Task, Status, Priority, Subtask, SubtaskStatus } from '../../../core/models';
 import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown';
 import { DatePicker } from '../date-picker/date-picker';
+import { SubtaskItem } from '../subtask-item/subtask-item';
+import { SubtaskAdd } from '../subtask-add/subtask-add';
 
 @Component({
   selector: 'app-task-row',
-  imports: [FormsModule, TitleCasePipe, SelectDropdown, DatePicker],
+  imports: [FormsModule, TitleCasePipe, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })
@@ -20,6 +22,11 @@ export class TaskRow implements OnDestroy {
   priorityChange = output<Priority>();
   dueDateChange = output<string | null>();
   delete = output<void>();
+
+  subtaskCreate = output<string>();
+  subtaskStatusChange = output<{ subtask: Subtask; status: SubtaskStatus }>();
+  subtaskTitleChange = output<{ subtask: Subtask; title: string }>();
+  subtaskDelete = output<Subtask>();
 
   priorityOptions: SelectOption[] = [
     { value: 'high', label: 'High', dotColor: '#EF4444' },
@@ -79,6 +86,23 @@ export class TaskRow implements OnDestroy {
     if (date !== this.task().due_date) {
       this.dueDateChange.emit(date);
     }
+  }
+
+  // Subtask handlers
+  onSubtaskCreate(title: string) {
+    this.subtaskCreate.emit(title);
+  }
+
+  onSubtaskStatusChange(subtask: Subtask, status: SubtaskStatus) {
+    this.subtaskStatusChange.emit({ subtask, status });
+  }
+
+  onSubtaskTitleChange(subtask: Subtask, title: string) {
+    this.subtaskTitleChange.emit({ subtask, title });
+  }
+
+  onSubtaskDelete(subtask: Subtask) {
+    this.subtaskDelete.emit(subtask);
   }
 
   startEdit(event: Event) {

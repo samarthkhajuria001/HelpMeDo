@@ -1,0 +1,115 @@
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 4px;
+  border-radius: 4px;
+  transition: background-color 100ms ease-out;
+}
+
+.subtask-item:hover {
+  background-color: #FAFAF9;
+}
+
+/* Checkbox */
+.checkbox {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid #D6D3D1;
+  border-radius: 50%;
+  background: transparent;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 100ms ease-out;
+}
+
+.checkbox:hover {
+  border-color: #A8A29E;
+}
+
+.checkbox.checked {
+  background-color: #22C55E;
+  border-color: #22C55E;
+}
+
+.checkbox.checked:hover {
+  background-color: #16A34A;
+  border-color: #16A34A;
+}
+
+.check-icon {
+  width: 10px;
+  height: 10px;
+  color: white;
+}
+
+/* Content */
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-size: 14px;
+  color: #1C1917;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: text;
+}
+
+.subtask-item.completed .title {
+  text-decoration: line-through;
+  color: #A8A29E;
+}
+
+.title-input {
+  width: 100%;
+  font-size: 14px;
+  color: #1C1917;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 0;
+}
+
+/* Delete button */
+.delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 100ms ease-out;
+}
+
+.subtask-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background-color: #FEE2E2;
+}
+
+.delete-btn svg {
+  width: 14px;
+  height: 14px;
+  color: #A8A29E;
+  transition: color 100ms ease-out;
+}
+
+.delete-btn:hover svg {
+  color: #DC2626;
+}

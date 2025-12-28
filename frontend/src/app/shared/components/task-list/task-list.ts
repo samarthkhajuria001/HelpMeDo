@@ -1,5 +1,5 @@
 import { Component, input, output, computed, inject } from '@angular/core';
-import { Task, Status, Priority } from '../../../core/models';
+import { Task, Status, Priority, Subtask, SubtaskStatus } from '../../../core/models';
 import { Tasks } from '../../../core/services';
 import { SectionHeader } from '../section-header/section-header';
 import { TaskRow } from '../task-row/task-row';
@@ -78,5 +78,21 @@ export class TaskList {
 
   onDelete(task: Task) {
     this.tasksService.deleteTask(task.id);
+  }
+
+  onSubtaskCreate(task: Task, title: string) {
+    this.tasksService.createSubtask(task.id, title);
+  }
+
+  onSubtaskStatusChange(task: Task, subtask: Subtask, status: SubtaskStatus) {
+    this.tasksService.updateSubtask(task.id, subtask.id, { status });
+  }
+
+  onSubtaskTitleChange(task: Task, subtask: Subtask, title: string) {
+    this.tasksService.updateSubtask(task.id, subtask.id, { title });
+  }
+
+  onSubtaskDelete(task: Task, subtask: Subtask) {
+    this.tasksService.deleteSubtask(task.id, subtask.id);
   }
 }
