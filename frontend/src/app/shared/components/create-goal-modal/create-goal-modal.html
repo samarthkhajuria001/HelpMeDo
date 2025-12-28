@@ -1,0 +1,58 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2 id="modal-title">Create Goal</h2>
+      <button type="button" class="close-btn" (click)="onClose()" aria-label="Close">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="goal-name" class="form-label">Name</label>
+        <input
+          #nameInput
+          id="goal-name"
+          type="text"
+          class="form-input"
+          placeholder="Enter goal name..."
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+          (keydown)="onKeydown($event)"
+          maxlength="100"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Color</label>
+        <app-color-picker
+          [value]="color()"
+          (change)="onColorChange($event)"
+        />
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn btn-cancel" (click)="onClose()">
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-create"
+        [disabled]="!name().trim() || submitting()"
+        (click)="onSubmit()"
+      >
+        @if (submitting()) {
+          Creating...
+        } @else {
+          Create
+        }
+      </button>
+    </div>
+  </div>
+</div>
