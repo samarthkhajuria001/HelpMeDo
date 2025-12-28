@@ -1,9 +1,12 @@
 <div class="goal-page">
   @if (goal()) {
-    <div class="goal-header">
-      <span class="goal-dot" [style.background-color]="goalColor()"></span>
-      <h1 class="goal-title">{{ goal()!.name }}</h1>
-    </div>
+    <app-goal-header
+      [goal]="goal()!"
+      [completedCount]="completedCount()"
+      [totalCount]="totalCount()"
+      (edit)="onEdit()"
+      (archive)="onArchive()"
+    />
     <app-quick-add class="block mb-6" />
     <app-task-list [tasks]="tasks()" [loading]="loading()" />
   } @else if (loading()) {

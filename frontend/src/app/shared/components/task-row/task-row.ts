@@ -1,6 +1,5 @@
 import { Component, input, output, computed, signal, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TitleCasePipe } from '@angular/common';
 import { Task, Status, Priority, Subtask, SubtaskStatus } from '../../../core/models';
 import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown';
 import { DatePicker } from '../date-picker/date-picker';
@@ -9,7 +8,7 @@ import { SubtaskAdd } from '../subtask-add/subtask-add';
 
 @Component({
   selector: 'app-task-row',
-  imports: [FormsModule, TitleCasePipe, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd],
+  imports: [FormsModule, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })

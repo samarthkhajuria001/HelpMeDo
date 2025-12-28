@@ -1,0 +1,19 @@
+<div class="goal-header">
+  <div class="header-top">
+    <div class="goal-info">
+      <span class="goal-dot" [style.background-color]="goalColor()"></span>
+      <h1 class="goal-name">{{ goal().name }}</h1>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn" (click)="onEdit()">Edit</button>
+      <button class="action-btn archive-btn" (click)="onArchive()">Archive</button>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <span class="progress-text">{{ progressText() }}</span>
+    <div class="progress-bar-container">
+      <div class="progress-bar" [style.width.%]="progressPercent()"></div>
+    </div>
+  </div>
+</div>

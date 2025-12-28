@@ -2,27 +2,6 @@
   padding: 0;
 }
 
-.goal-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.goal-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.goal-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1C1917;
-  margin: 0;
-}
-
 .goal-loading {
   padding: 0;
 }

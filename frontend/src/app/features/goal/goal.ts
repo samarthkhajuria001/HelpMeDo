@@ -1,37 +1,43 @@
 import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Tasks, Goals } from '../../core/services';
-import { Goal as GoalModel, GOAL_COLORS } from '../../core/models';
+import { Goal as GoalModel } from '../../core/models';
 import { TaskList } from '../../shared/components/task-list/task-list';
 import { QuickAdd } from '../../shared/components/quick-add/quick-add';
+import { GoalHeader } from '../../shared/components/goal-header/goal-header';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-goal',
-  imports: [TaskList, QuickAdd],
+  imports: [TaskList, QuickAdd, GoalHeader],
   templateUrl: './goal.html',
   styleUrl: './goal.css',
 })
 export class Goal implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private tasksService = inject(Tasks);
   private goalsService = inject(Goals);
   private routeSub?: Subscription;
 
   goalId = signal<string | null>(null);
+  showEditModal = signal(false);
 
   goal = computed<GoalModel | undefined>(() => {
     const id = this.goalId();
     return id ? this.goalsService.getGoalById(id) : undefined;
   });
 
-  goalColor = computed(() => {
-    const g = this.goal();
-    return g ? GOAL_COLORS[g.color] : '#78716C';
-  });
-
   tasks = this.tasksService.tasks;
   loading = this.tasksService.loading;
+
+  completedCount = computed(() => {
+    return this.tasks().filter(t => t.status === 'completed').length;
+  });
+
+  totalCount = computed(() => {
+    return this.tasks().length;
+  });
 
   ngOnInit() {
     this.routeSub = this.route.paramMap.subscribe(params => {
@@ -46,5 +52,25 @@ export class Goal implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.routeSub?.unsubscribe();
+  }
+
+  onEdit() {
+    this.showEditModal.set(true);
+  }
+
+  closeEditModal() {
+    this.showEditModal.set(false);
+  }
+
+  async onArchive() {
+    const g = this.goal();
+    if (!g) return;
+
+    try {
+      await this.goalsService.updateGoal(g.id, { archived: true });
+      this.router.navigate(['/today']);
+    } catch (err) {
+      console.error('Failed to archive goal:', err);
+    }
   }
 }
