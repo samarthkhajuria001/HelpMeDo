@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, computed } from '@angular/core';
 import { Tasks } from '../../core/services';
 import { TaskList } from '../../shared/components/task-list/task-list';
 import { QuickAdd } from '../../shared/components/quick-add/quick-add';
@@ -12,10 +12,37 @@ import { QuickAdd } from '../../shared/components/quick-add/quick-add';
 export class Today implements OnInit {
   private tasksService = inject(Tasks);
 
-  tasks = this.tasksService.tasks;
   loading = this.tasksService.loading;
+
+  private todayStr = this.getTodayString();
+
+  // Tasks that are overdue (due_date < today)
+  overdueTasks = computed(() => {
+    return this.tasksService.tasks().filter(t => {
+      if (!t.due_date) return false;
+      return t.due_date < this.todayStr;
+    });
+  });
+
+  // Tasks for today (due_date == today OR no due_date)
+  todayTasks = computed(() => {
+    return this.tasksService.tasks().filter(t => {
+      if (!t.due_date) return true; // No due date = show in today
+      return t.due_date >= this.todayStr;
+    });
+  });
+
+  hasOverdue = computed(() => this.overdueTasks().length > 0);
 
   ngOnInit() {
     this.tasksService.loadTasks('today');
+  }
+
+  private getTodayString(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }
