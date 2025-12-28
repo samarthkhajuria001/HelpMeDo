@@ -1,6 +1,7 @@
-import { Component, input, output, computed, signal, OnDestroy } from '@angular/core';
+import { Component, input, output, computed, signal, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Task, Status, Priority, Subtask, SubtaskStatus } from '../../../core/models';
+import { Task, Status, Priority, Subtask, SubtaskStatus, Goal } from '../../../core/models';
+import { Goals } from '../../../core/services';
 import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown';
 import { DatePicker } from '../date-picker/date-picker';
 import { SubtaskItem } from '../subtask-item/subtask-item';
@@ -13,13 +14,28 @@ import { SubtaskAdd } from '../subtask-add/subtask-add';
   styleUrl: './task-row.css',
 })
 export class TaskRow implements OnDestroy {
+  private goalsService = inject(Goals);
+
   task = input.required<Task>();
+
+  goalColor = computed(() => {
+    const goalId = this.task().goal_id;
+    return goalId ? this.goalsService.getGoalColor(goalId) : null;
+  });
+
+  goalName = computed(() => {
+    const goalId = this.task().goal_id;
+    if (!goalId) return null;
+    const goal = this.goalsService.getGoalById(goalId);
+    return goal?.name || null;
+  });
 
   statusChange = output<Status>();
   titleChange = output<string>();
   descriptionChange = output<string>();
   priorityChange = output<Priority>();
   dueDateChange = output<string | null>();
+  goalChange = output<string | null>();
   delete = output<void>();
 
   subtaskCreate = output<string>();
@@ -32,6 +48,21 @@ export class TaskRow implements OnDestroy {
     { value: 'medium', label: 'Medium', dotColor: '#F59E0B' },
     { value: 'low', label: 'Low', dotColor: '#22C55E' },
   ];
+
+  goalOptions = computed<SelectOption[]>(() => {
+    const goals = this.goalsService.goals();
+    const options: SelectOption[] = [
+      { value: '', label: 'None' }
+    ];
+    goals.forEach(g => {
+      options.push({
+        value: g.id,
+        label: g.name,
+        dotColor: this.goalsService.getGoalColor(g.id) || undefined
+      });
+    });
+    return options;
+  });
 
   isCompleted = computed(() => this.task().status === 'completed');
 
@@ -84,6 +115,14 @@ export class TaskRow implements OnDestroy {
   onDueDateChange(date: string | null) {
     if (date !== this.task().due_date) {
       this.dueDateChange.emit(date);
+    }
+  }
+
+  // Goal change
+  onGoalChange(value: string) {
+    const newGoalId = value || null;
+    if (newGoalId !== this.task().goal_id) {
+      this.goalChange.emit(newGoalId);
     }
   }
 

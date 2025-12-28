@@ -76,6 +76,10 @@ export class TaskList {
     this.tasksService.updateTask(task.id, { due_date });
   }
 
+  onGoalChange(task: Task, goal_id: string | null) {
+    this.tasksService.updateTask(task.id, { goal_id });
+  }
+
   onDelete(task: Task) {
     this.tasksService.deleteTask(task.id);
   }

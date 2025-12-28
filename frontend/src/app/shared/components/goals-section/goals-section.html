@@ -21,7 +21,7 @@
   } @else {
     <div class="goals-list">
       @for (goal of goals(); track goal.id) {
-        <app-goal-nav-item [goal]="goal" />
+        <app-goal-nav-item [goal]="goal" [count]="getGoalCount(goal.id)" />
       }
     </div>
   }

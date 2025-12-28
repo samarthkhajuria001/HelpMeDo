@@ -29,8 +29,8 @@
 
     <!-- Meta -->
     <div class="meta">
-      @if (task().goal_id) {
-        <div class="goal-dot"></div>
+      @if (goalColor()) {
+        <div class="goal-dot" [style.background-color]="goalColor()"></div>
       }
       <!-- Show ONE date: due_date if set, otherwise created_at -->
       @if (formattedDueDate()) {
@@ -120,12 +120,15 @@
             (change)="onDueDateChange($event)"
           />
         </div>
-        @if (task().goal_id) {
-          <div class="metadata-item">
-            <span class="metadata-label">Goal</span>
-            <span class="metadata-value">Linked</span>
-          </div>
-        }
+        <div class="metadata-item">
+          <span class="metadata-label">Goal</span>
+          <app-select-dropdown
+            [options]="goalOptions()"
+            [value]="task().goal_id || ''"
+            (change)="onGoalChange($event)"
+            placeholder="None"
+          />
+        </div>
       </div>
 
       <!-- Delete action in expanded view -->
