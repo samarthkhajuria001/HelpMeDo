@@ -1,7 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { Goals } from '../../../core/services';
+import { Goals, Tasks } from '../../../core/services';
 import { GoalCreate, Task } from '../../../core/models';
 import { GoalNavItem } from '../goal-nav-item/goal-nav-item';
 import { CreateGoalModal } from '../create-goal-modal/create-goal-modal';
@@ -15,6 +15,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class GoalsSection implements OnInit {
   private goalsService = inject(Goals);
+  private tasksService = inject(Tasks);
   private http = inject(HttpClient);
 
   goals = this.goalsService.goals;
@@ -22,9 +23,16 @@ export class GoalsSection implements OnInit {
   showCreateModal = signal(false);
   goalCounts = signal<Record<string, number>>({});
 
+  constructor() {
+    // Watch for task changes and refresh goal counts
+    effect(() => {
+      const _ = this.tasksService.tasksVersion();
+      this.loadGoalCounts();
+    });
+  }
+
   ngOnInit() {
     this.goalsService.loadGoals();
-    this.loadGoalCounts();
   }
 
   async loadGoalCounts() {

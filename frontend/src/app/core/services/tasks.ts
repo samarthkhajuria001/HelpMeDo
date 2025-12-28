@@ -50,6 +50,9 @@ export class Tasks {
   private currentHorizon = signal<TimeHorizon | null>(null);
   private currentGoalId = signal<string | null>(null);
 
+  // Increments whenever tasks change - used by GoalsSection to refresh counts
+  tasksVersion = signal(0);
+
   tasksByPriority = computed<TasksByPriority>(() => {
     const allTasks = this.tasks();
     return {
@@ -109,6 +112,7 @@ export class Tasks {
 
     // Refresh sidebar counts
     this.loadCounts();
+    this.tasksVersion.update(v => v + 1);
 
     return task!;
   }
@@ -123,23 +127,33 @@ export class Tasks {
 
     const task = await this.http.patch<Task>(`${this.apiUrl}/${id}`, updateData).toPromise();
 
-    // Check if time_horizon changed - task should move to different page
     const currentHorizon = this.currentHorizon();
+    const currentGoalId = this.currentGoalId();
+    let shouldRemoveFromView = false;
+
+    // Check if time_horizon changed - task should move to different page
     if (updateData.time_horizon && currentHorizon && updateData.time_horizon !== currentHorizon) {
-      // Remove task from current view since it moved to a different horizon
+      shouldRemoveFromView = true;
+    }
+
+    // Check if goal_id changed while on a goal view
+    if ('goal_id' in data && currentGoalId && data.goal_id !== currentGoalId) {
+      shouldRemoveFromView = true;
+    }
+
+    if (shouldRemoveFromView) {
+      // Remove task from current view since it moved
       this.tasks.update(tasks => tasks.filter(t => t.id !== id));
-      this.loadCounts();
     } else {
       // Update local state
       this.tasks.update(tasks =>
         tasks.map(t => t.id === id ? { ...t, ...updateData } : t)
       );
-
-      // Refresh counts if status changed
-      if (data.status) {
-        this.loadCounts();
-      }
     }
+
+    // Refresh counts
+    this.loadCounts();
+    this.tasksVersion.update(v => v + 1);
 
     return task!;
   }
@@ -152,6 +166,7 @@ export class Tasks {
 
     // Refresh sidebar counts
     this.loadCounts();
+    this.tasksVersion.update(v => v + 1);
   }
 
   clearTasks(): void {
