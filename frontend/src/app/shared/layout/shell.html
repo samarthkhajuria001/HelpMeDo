@@ -18,6 +18,8 @@
         <app-nav-item label="Today" route="/today" [count]="counts().today || null" />
         <app-nav-item label="This Week" route="/week" [count]="counts().week || null" />
         <app-nav-item label="Someday" route="/someday" [count]="counts().someday || null" />
+        <div class="nav-divider"></div>
+        <app-nav-item label="Completed" route="/completed" />
       </nav>
 
       <!-- Goals -->
@@ -39,6 +41,8 @@
             <app-nav-item label="Today" route="/today" [count]="counts().today || null" (click)="closeSidebar()" />
             <app-nav-item label="This Week" route="/week" [count]="counts().week || null" (click)="closeSidebar()" />
             <app-nav-item label="Someday" route="/someday" [count]="counts().someday || null" (click)="closeSidebar()" />
+            <div class="nav-divider"></div>
+            <app-nav-item label="Completed" route="/completed" (click)="closeSidebar()" />
           </nav>
 
           <!-- Goals -->

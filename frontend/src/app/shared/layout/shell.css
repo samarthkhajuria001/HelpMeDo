@@ -1,1 +1,7 @@
 /* Shell layout styles */
+
+.nav-divider {
+  height: 1px;
+  background-color: #E7E5E4;
+  margin: 8px 0;
+}

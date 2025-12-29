@@ -174,6 +174,25 @@ export class Tasks {
     this.error.set(null);
   }
 
+  async loadCompletedTasks(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+    this.currentHorizon.set(null);
+    this.currentGoalId.set(null);
+
+    try {
+      const tasks = await this.http.get<Task[]>(this.apiUrl, {
+        params: { status: 'completed' }
+      }).toPromise();
+      this.tasks.set(tasks || []);
+    } catch (err: any) {
+      this.error.set(err.message || 'Failed to load completed tasks');
+      this.tasks.set([]);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   async loadCounts(): Promise<void> {
     try {
       const [today, week, someday] = await Promise.all([
