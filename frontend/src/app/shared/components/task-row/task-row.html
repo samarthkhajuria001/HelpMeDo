@@ -129,6 +129,13 @@
             placeholder="None"
           />
         </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Pomodoros</span>
+          <app-pomodoro-estimate
+            [value]="task().estimated_pomodoros"
+            (change)="onEstimateChange($event)"
+          />
+        </div>
       </div>
 
       <!-- Delete action in expanded view -->

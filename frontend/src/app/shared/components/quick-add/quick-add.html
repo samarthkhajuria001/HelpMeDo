@@ -36,6 +36,10 @@
         (change)="onGoalChange($event)"
         placeholder="Goal"
       />
+      <app-pomodoro-estimate
+        [value]="estimatedPomodoros()"
+        (change)="onEstimateChange($event)"
+      />
       <button
         type="button"
         class="add-btn"

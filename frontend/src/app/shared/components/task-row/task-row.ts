@@ -6,10 +6,11 @@ import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown
 import { DatePicker } from '../date-picker/date-picker';
 import { SubtaskItem } from '../subtask-item/subtask-item';
 import { SubtaskAdd } from '../subtask-add/subtask-add';
+import { PomodoroEstimate } from '../pomodoro-estimate/pomodoro-estimate';
 
 @Component({
   selector: 'app-task-row',
-  imports: [FormsModule, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd],
+  imports: [FormsModule, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd, PomodoroEstimate],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })
@@ -36,6 +37,7 @@ export class TaskRow implements OnDestroy {
   priorityChange = output<Priority>();
   dueDateChange = output<string | null>();
   goalChange = output<string | null>();
+  estimateChange = output<number | null>();
   delete = output<void>();
 
   subtaskCreate = output<string>();
@@ -123,6 +125,13 @@ export class TaskRow implements OnDestroy {
     const newGoalId = value || null;
     if (newGoalId !== this.task().goal_id) {
       this.goalChange.emit(newGoalId);
+    }
+  }
+
+  // Estimate change
+  onEstimateChange(value: number | null) {
+    if (value !== this.task().estimated_pomodoros) {
+      this.estimateChange.emit(value);
     }
   }
 

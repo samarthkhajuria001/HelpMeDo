@@ -4,10 +4,11 @@ import { Tasks, Goals } from '../../../core/services';
 import { TimeHorizon, Priority } from '../../../core/models';
 import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown';
 import { DatePicker } from '../date-picker/date-picker';
+import { PomodoroEstimate } from '../pomodoro-estimate/pomodoro-estimate';
 
 @Component({
   selector: 'app-quick-add',
-  imports: [FormsModule, SelectDropdown, DatePicker],
+  imports: [FormsModule, SelectDropdown, DatePicker, PomodoroEstimate],
   templateUrl: './quick-add.html',
   styleUrl: './quick-add.css',
 })
@@ -25,6 +26,7 @@ export class QuickAdd {
   priority = signal<Priority>('medium');
   dueDate = signal<string | null>(null);
   goalId = signal<string | null>(null);
+  estimatedPomodoros = signal<number | null>(null);
 
   constructor() {
     // Sync goalId with defaultGoalId when it changes
@@ -77,7 +79,8 @@ export class QuickAdd {
         time_horizon: this.effectiveHorizon(),
         priority: this.priority(),
         due_date: this.dueDate(),
-        goal_id: this.goalId() || null
+        goal_id: this.goalId() || null,
+        estimated_pomodoros: this.estimatedPomodoros()
       });
       this.resetForm();
     } catch (err) {
@@ -97,6 +100,10 @@ export class QuickAdd {
 
   onGoalChange(value: string) {
     this.goalId.set(value || null);
+  }
+
+  onEstimateChange(value: number | null) {
+    this.estimatedPomodoros.set(value);
   }
 
   // Parse YYYY-MM-DD string as local date (not UTC)
@@ -122,6 +129,7 @@ export class QuickAdd {
     this.priority.set('medium');
     this.dueDate.set(null);
     this.goalId.set(this.defaultGoalId());
+    this.estimatedPomodoros.set(null);
     this.expanded.set(false);
   }
 

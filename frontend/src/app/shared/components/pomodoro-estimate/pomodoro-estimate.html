@@ -1,0 +1,25 @@
+<div class="pomodoro-estimate" [class.has-value]="hasValue()">
+  @if (hasValue()) {
+    <!-- Full stepper when value is set -->
+    <button type="button" class="stepper-btn" (click)="decrement($event)">
+      <svg viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+      </svg>
+    </button>
+    <span class="value">{{ value() }}</span>
+    <button type="button" class="stepper-btn" (click)="increment($event)">
+      <svg viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+      </svg>
+    </button>
+    <span class="time-hint">{{ formattedTime() }}</span>
+  } @else {
+    <!-- Compact add button when no value -->
+    <button type="button" class="add-btn" (click)="increment($event)">
+      <svg viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+      </svg>
+    </button>
+    <span class="placeholder">{{ placeholder() }}</span>
+  }
+</div>

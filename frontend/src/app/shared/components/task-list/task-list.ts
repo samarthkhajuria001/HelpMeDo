@@ -80,6 +80,10 @@ export class TaskList {
     this.tasksService.updateTask(task.id, { goal_id });
   }
 
+  onEstimateChange(task: Task, estimated_pomodoros: number | null) {
+    this.tasksService.updateTask(task.id, { estimated_pomodoros });
+  }
+
   onDelete(task: Task) {
     this.tasksService.deleteTask(task.id);
   }
