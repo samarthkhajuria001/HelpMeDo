@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 from enum import Enum as PyEnum
-from sqlalchemy import Column, String, Boolean, DateTime, Date, Time, ForeignKey, Enum, Text
+from sqlalchemy import Column, String, Boolean, DateTime, Date, Time, ForeignKey, Enum, Text, Integer
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -43,6 +43,12 @@ class Task(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
+    # Pomodoro tracking
+    estimated_pomodoros = Column(Integer, nullable=True)
+    actual_pomodoros = Column(Integer, nullable=False, default=0)
+    first_focused_at = Column(DateTime, nullable=True)
+
     user = relationship("User", back_populates="tasks")
     goal = relationship("Goal", back_populates="tasks")
     subtasks = relationship("Subtask", back_populates="task", cascade="all, delete-orphan")
+    focus_sessions = relationship("FocusSession", back_populates="task", cascade="all, delete-orphan")

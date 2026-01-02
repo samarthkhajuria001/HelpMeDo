@@ -39,6 +39,7 @@ class TaskCreate(BaseModel):
     due_date: date | None = None
     due_time: time | None = None
     time_horizon: TimeHorizon = TimeHorizon.today
+    estimated_pomodoros: int | None = None
 
 
 class TaskUpdate(BaseModel):
@@ -50,6 +51,7 @@ class TaskUpdate(BaseModel):
     due_date: date | None = None
     due_time: time | None = None
     time_horizon: TimeHorizon | None = None
+    estimated_pomodoros: int | None = None
 
 
 class TaskOut(BaseModel):
@@ -69,5 +71,9 @@ class TaskOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     subtasks: list[SubtaskOut] = []
+    # Pomodoro fields
+    estimated_pomodoros: int | None
+    actual_pomodoros: int
+    first_focused_at: datetime | None
 
     model_config = {"from_attributes": True}

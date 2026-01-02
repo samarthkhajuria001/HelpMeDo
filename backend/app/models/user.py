@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, JSON
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -14,5 +14,9 @@ class User(Base):
     google_id = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
+    # User settings (JSON object for pomodoro preferences, etc.)
+    settings = Column(JSON, nullable=False, default=dict)
+
     goals = relationship("Goal", back_populates="user")
     tasks = relationship("Task", back_populates="user")
+    focus_sessions = relationship("FocusSession", back_populates="user", cascade="all, delete-orphan")

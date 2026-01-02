@@ -9,3 +9,12 @@ from app.schemas.task import (
     SubtaskOut,
 )
 from app.schemas.auth import GoogleToken, TokenOut
+from app.schemas.focus_session import (
+    FocusSessionStart,
+    FocusSessionOut,
+    FocusSessionActive,
+    FocusSessionPauseResponse,
+    FocusSessionResumeResponse,
+    FocusSessionCompleteResponse,
+    FocusSessionAbandonResponse,
+)
