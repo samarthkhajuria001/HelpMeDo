@@ -27,10 +27,10 @@ class FocusSessionOut(BaseModel):
     pause_count: int
     total_pause_seconds: int
     pauses: list[dict]
-    metadata: dict
+    metadata_: dict
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+    model_config = {"from_attributes": True, "populate_by_name": True}
 
 
 class FocusSessionActive(BaseModel):
