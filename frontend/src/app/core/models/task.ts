@@ -37,6 +37,10 @@ export interface Task {
   created_at: string;
   updated_at: string;
   subtasks: Subtask[];
+  // Pomodoro fields
+  estimated_pomodoros: number | null;
+  actual_pomodoros: number;
+  first_focused_at: string | null;
 }
 
 export interface TaskCreate {
@@ -47,6 +51,7 @@ export interface TaskCreate {
   due_date?: string | null;
   due_time?: string | null;
   time_horizon?: TimeHorizon;
+  estimated_pomodoros?: number | null;
 }
 
 export interface TaskUpdate {
@@ -58,6 +63,7 @@ export interface TaskUpdate {
   due_date?: string | null;
   due_time?: string | null;
   time_horizon?: TimeHorizon;
+  estimated_pomodoros?: number | null;
 }
 
 export interface SubtaskUpdate {
