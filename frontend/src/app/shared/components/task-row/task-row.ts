@@ -7,10 +7,11 @@ import { DatePicker } from '../date-picker/date-picker';
 import { SubtaskItem } from '../subtask-item/subtask-item';
 import { SubtaskAdd } from '../subtask-add/subtask-add';
 import { PomodoroEstimate } from '../pomodoro-estimate/pomodoro-estimate';
+import { PomodoroDots } from '../pomodoro-dots/pomodoro-dots';
 
 @Component({
   selector: 'app-task-row',
-  imports: [FormsModule, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd, PomodoroEstimate],
+  imports: [FormsModule, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd, PomodoroEstimate, PomodoroDots],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })
@@ -38,6 +39,7 @@ export class TaskRow implements OnDestroy {
   dueDateChange = output<string | null>();
   goalChange = output<string | null>();
   estimateChange = output<number | null>();
+  startFocus = output<void>();
   delete = output<void>();
 
   subtaskCreate = output<string>();
@@ -133,6 +135,12 @@ export class TaskRow implements OnDestroy {
     if (value !== this.task().estimated_pomodoros) {
       this.estimateChange.emit(value);
     }
+  }
+
+  // Start focus session
+  onStartFocus(event: Event) {
+    event.stopPropagation();
+    this.startFocus.emit();
   }
 
   // Subtask handlers

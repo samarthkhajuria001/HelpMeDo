@@ -29,10 +29,16 @@
 
     <!-- Meta -->
     <div class="meta">
+      @if (task().estimated_pomodoros) {
+        <app-pomodoro-dots
+          [completed]="task().actual_pomodoros"
+          [estimated]="task().estimated_pomodoros"
+          size="sm"
+        />
+      }
       @if (goalColor()) {
         <div class="goal-dot" [style.background-color]="goalColor()"></div>
       }
-      <!-- Show ONE date: due_date if set, otherwise created_at -->
       @if (formattedDueDate()) {
         <span class="due-date">{{ formattedDueDate() }}</span>
       } @else if (formattedCreatedDate()) {
@@ -76,6 +82,25 @@
   <!-- Expanded panel -->
   @if (expanded()) {
     <div class="expanded-panel" (click)="$event.stopPropagation()">
+      <!-- Focus section -->
+      @if (task().estimated_pomodoros) {
+        <div class="panel-section focus-section">
+          <div class="focus-header">
+            <app-pomodoro-dots
+              [completed]="task().actual_pomodoros"
+              [estimated]="task().estimated_pomodoros"
+              size="md"
+            />
+            <span class="focus-progress">
+              {{ task().actual_pomodoros }} of {{ task().estimated_pomodoros }} completed
+            </span>
+          </div>
+          <button type="button" class="start-focus-btn" (click)="onStartFocus($event)">
+            Start Focus
+          </button>
+        </div>
+      }
+
       <!-- Notes section -->
       <div class="panel-section">
         <label class="section-label">Notes</label>
@@ -130,7 +155,7 @@
           />
         </div>
         <div class="metadata-item">
-          <span class="metadata-label">Pomodoros</span>
+          <span class="metadata-label">Est.</span>
           <app-pomodoro-estimate
             [value]="task().estimated_pomodoros"
             (change)="onEstimateChange($event)"

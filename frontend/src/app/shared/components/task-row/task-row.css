@@ -372,3 +372,42 @@
 .delete-text-btn:hover {
   background-color: #FEE2E2;
 }
+
+/* Focus section */
+.focus-section {
+  background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.focus-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.focus-progress {
+  font-size: 13px;
+  color: #57534E;
+  font-weight: 500;
+}
+
+.start-focus-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #3B82F6;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.start-focus-btn:hover {
+  background: #2563EB;
+}

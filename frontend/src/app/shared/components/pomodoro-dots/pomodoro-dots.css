@@ -1,0 +1,46 @@
+.pomodoro-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dot {
+  border-radius: 50%;
+  background: #E7E5E4;
+  border: 1px solid #D6D3D1;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.dot.filled {
+  background: #3B82F6;
+  border-color: #3B82F6;
+}
+
+/* Small size (collapsed view) */
+.size-sm .dot {
+  width: 6px;
+  height: 6px;
+}
+
+.size-sm .overflow {
+  font-size: 10px;
+  color: #A8A29E;
+  margin-left: 2px;
+}
+
+/* Medium size (expanded view) */
+.size-md .dot {
+  width: 10px;
+  height: 10px;
+}
+
+.size-md .overflow {
+  font-size: 12px;
+  color: #78716C;
+  margin-left: 4px;
+}
+
+.overflow {
+  font-weight: 500;
+}

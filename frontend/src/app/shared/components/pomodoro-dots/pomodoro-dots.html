@@ -1,0 +1,10 @@
+@if (showDots()) {
+  <div class="pomodoro-dots" [class.size-sm]="size() === 'sm'" [class.size-md]="size() === 'md'">
+    @for (dot of dots(); track $index) {
+      <span class="dot" [class.filled]="dot.filled"></span>
+    }
+    @if (overflow() > 0) {
+      <span class="overflow">+{{ overflow() }}</span>
+    }
+  </div>
+}

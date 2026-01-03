@@ -1,6 +1,6 @@
 import { Component, input, output, computed, inject } from '@angular/core';
 import { Task, Status, Priority, Subtask, SubtaskStatus } from '../../../core/models';
-import { Tasks } from '../../../core/services';
+import { Tasks, Focus } from '../../../core/services';
 import { SectionHeader } from '../section-header/section-header';
 import { TaskRow } from '../task-row/task-row';
 import { EmptyState, EmptyStateVariant } from '../empty-state/empty-state';
@@ -13,6 +13,7 @@ import { EmptyState, EmptyStateVariant } from '../empty-state/empty-state';
 })
 export class TaskList {
   private tasksService = inject(Tasks);
+  private focusService = inject(Focus);
 
   tasks = input.required<Task[]>();
   loading = input(false);
@@ -82,6 +83,10 @@ export class TaskList {
 
   onEstimateChange(task: Task, estimated_pomodoros: number | null) {
     this.tasksService.updateTask(task.id, { estimated_pomodoros });
+  }
+
+  onStartFocus(task: Task) {
+    this.focusService.start(task.id);
   }
 
   onDelete(task: Task) {
