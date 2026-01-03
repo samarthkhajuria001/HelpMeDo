@@ -85,7 +85,12 @@ export class Focus implements OnDestroy {
         // If timer expired while user was away, abandon instead of completing
         // User wasn't actively present, so it shouldn't count as completed
         if (this.remainingSeconds() <= 0) {
-          await this.abandon();
+          // Clear local state first so user isn't blocked if API fails
+          this.activeSession.set(null);
+          this.remainingSeconds.set(0);
+          this.clearLocalStorage();
+          // Try to abandon on backend (fire and forget - don't block user)
+          this.http.post(`${this.apiUrl}/abandon`, {}).toPromise().catch(() => {});
           return;
         }
 
