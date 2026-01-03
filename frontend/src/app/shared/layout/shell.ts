@@ -4,7 +4,7 @@ import { Header } from './header';
 import { NavItem } from '../components/nav-item/nav-item';
 import { UserAccount } from '../components/user-account/user-account';
 import { GoalsSection } from '../components/goals-section/goals-section';
-import { Tasks } from '../../core/services';
+import { Tasks, Focus } from '../../core/services';
 
 @Component({
   selector: 'app-shell',
@@ -15,6 +15,7 @@ import { Tasks } from '../../core/services';
 })
 export class Shell implements OnInit {
   private tasksService = inject(Tasks);
+  private focusService = inject(Focus);
 
   protected sidebarOpen = signal(false);
   protected aiPanelOpen = signal(false);
@@ -22,6 +23,7 @@ export class Shell implements OnInit {
 
   ngOnInit() {
     this.tasksService.loadCounts();
+    this.focusService.loadActiveSession();
   }
 
   toggleSidebar() {

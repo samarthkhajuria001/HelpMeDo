@@ -17,6 +17,7 @@ export class FocusTimer {
   // Outputs
   pause = output<void>();
   resume = output<void>();
+  done = output<void>();
   abandon = output<void>();
 
   // Computed: Format time as MM:SS
@@ -45,6 +46,12 @@ export class FocusTimer {
   onResume() {
     if (!this.loading()) {
       this.resume.emit();
+    }
+  }
+
+  onDone() {
+    if (!this.loading()) {
+      this.done.emit();
     }
   }
 

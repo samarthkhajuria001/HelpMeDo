@@ -10,11 +10,16 @@ import {
   FocusSessionCompleteResponse,
   FocusSessionAbandonResponse,
 } from '../models';
+import { Tasks } from './tasks';
 
 @Injectable({ providedIn: 'root' })
 export class Focus implements OnDestroy {
   private http = inject(HttpClient);
+  private tasksService = inject(Tasks);
   private apiUrl = `${environment.apiUrl}/focus`;
+
+  // Audio for completion chime
+  private completionSound: HTMLAudioElement | null = null;
 
   // Session state
   activeSession = signal<FocusSession | null>(null);
@@ -63,6 +68,7 @@ export class Focus implements OnDestroy {
 
   /**
    * Load active session from server (call on app init)
+   * If timer expired while user was away, abandon the session (not complete)
    */
   async loadActiveSession(): Promise<void> {
     this.loading.set(true);
@@ -75,6 +81,14 @@ export class Focus implements OnDestroy {
 
       if (session) {
         this.calculateRemainingTime(session);
+
+        // If timer expired while user was away, abandon instead of completing
+        // User wasn't actively present, so it shouldn't count as completed
+        if (this.remainingSeconds() <= 0) {
+          await this.abandon();
+          return;
+        }
+
         if (this.isRunning()) {
           this.startTimer();
         }
@@ -90,6 +104,11 @@ export class Focus implements OnDestroy {
    * Start a new focus session for a task
    */
   async start(taskId: string): Promise<FocusSession | null> {
+    // Prevent duplicate calls (race condition from double-clicks)
+    if (this.loading() || this.hasActiveSession()) {
+      return null;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
@@ -117,6 +136,11 @@ export class Focus implements OnDestroy {
    * Pause the active session
    */
   async pause(): Promise<boolean> {
+    // Prevent duplicate calls
+    if (this.loading() || !this.hasActiveSession() || this.isPaused()) {
+      return false;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
@@ -150,6 +174,11 @@ export class Focus implements OnDestroy {
    * Resume a paused session
    */
   async resume(): Promise<boolean> {
+    // Prevent duplicate calls
+    if (this.loading() || !this.hasActiveSession() || !this.isPaused()) {
+      return false;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
@@ -191,6 +220,12 @@ export class Focus implements OnDestroy {
    * Complete the active session (pomodoro finished)
    */
   async complete(): Promise<FocusSessionCompleteResponse | null> {
+    // Prevent duplicate calls
+    if (this.loading() || !this.hasActiveSession()) {
+      return null;
+    }
+
+    const taskId = this.currentTaskId();
     this.loading.set(true);
     this.error.set(null);
 
@@ -202,6 +237,19 @@ export class Focus implements OnDestroy {
         this.activeSession.set(null);
         this.remainingSeconds.set(0);
         this.clearLocalStorage();
+
+        // Update local task state to reflect new actual_pomodoros
+        if (taskId) {
+          this.tasksService.tasks.update(tasks =>
+            tasks.map(t => t.id === taskId
+              ? { ...t, actual_pomodoros: response.task_actual_pomodoros }
+              : t
+            )
+          );
+        }
+
+        // Play completion sound
+        this.playCompletionSound();
       }
 
       return response ?? null;
@@ -217,6 +265,11 @@ export class Focus implements OnDestroy {
    * Abandon the active session (quit early)
    */
   async abandon(): Promise<FocusSessionAbandonResponse | null> {
+    // Prevent duplicate calls
+    if (this.loading() || !this.hasActiveSession()) {
+      return null;
+    }
+
     this.loading.set(true);
     this.error.set(null);
 
@@ -275,7 +328,11 @@ export class Focus implements OnDestroy {
 
     this.timerInterval = setInterval(() => {
       const current = this.remainingSeconds();
-      if (current <= 0) {
+      if (current <= 1) {
+        // Timer finished - stop first to prevent duplicate calls
+        this.stopTimer();
+        this.remainingSeconds.set(0);
+        // Auto-complete the session
         this.complete();
       } else {
         this.remainingSeconds.set(current - 1);
@@ -310,6 +367,56 @@ export class Focus implements OnDestroy {
    */
   private clearLocalStorage(): void {
     localStorage.removeItem('focus_session');
+  }
+
+  /**
+   * Play completion chime sound
+   */
+  private playCompletionSound(): void {
+    try {
+      // Create audio element if not exists
+      if (!this.completionSound) {
+        this.completionSound = new Audio();
+        // Use a simple built-in notification sound via Web Audio API
+        this.completionSound.src = 'data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' +
+          Array(300).fill('//v/+//7/wEAAQABAAEA').join('');
+      }
+
+      // Use Web Audio API for a pleasant chime
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Pleasant bell-like sound
+      oscillator.frequency.setValueAtTime(830, audioContext.currentTime); // G#5
+      oscillator.type = 'sine';
+
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+
+      // Second tone for chime effect
+      setTimeout(() => {
+        const osc2 = audioContext.createOscillator();
+        const gain2 = audioContext.createGain();
+        osc2.connect(gain2);
+        gain2.connect(audioContext.destination);
+        osc2.frequency.setValueAtTime(1046, audioContext.currentTime); // C6
+        osc2.type = 'sine';
+        gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+        osc2.start(audioContext.currentTime);
+        osc2.stop(audioContext.currentTime + 0.8);
+      }, 150);
+    } catch (e) {
+      // Audio not supported or blocked, fail silently
+      console.warn('Could not play completion sound:', e);
+    }
   }
 
   ngOnDestroy(): void {

@@ -408,6 +408,11 @@
   transition: background-color 150ms ease-out;
 }
 
-.start-focus-btn:hover {
+.start-focus-btn:hover:not(:disabled) {
   background: #2563EB;
+}
+
+.start-focus-btn:disabled {
+  background: #93C5FD;
+  cursor: not-allowed;
 }

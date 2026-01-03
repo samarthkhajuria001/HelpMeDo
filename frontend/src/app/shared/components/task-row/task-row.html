@@ -94,6 +94,7 @@
             [loading]="focusService.loading()"
             (pause)="focusService.pause()"
             (resume)="focusService.resume()"
+            (done)="focusService.complete()"
             (abandon)="focusService.abandon()"
           />
         </div>
@@ -110,8 +111,13 @@
               {{ task().actual_pomodoros }} of {{ task().estimated_pomodoros }} completed
             </span>
           </div>
-          <button type="button" class="start-focus-btn" (click)="onStartFocus($event)">
-            Start Focus
+          <button
+            type="button"
+            class="start-focus-btn"
+            [disabled]="focusService.loading()"
+            (click)="onStartFocus($event)"
+          >
+            {{ focusService.loading() ? 'Starting...' : 'Start Focus' }}
           </button>
         </div>
       }

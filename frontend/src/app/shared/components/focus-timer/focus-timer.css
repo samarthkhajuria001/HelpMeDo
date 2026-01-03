@@ -190,6 +190,18 @@
   box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
 }
 
+/* Done button (complete early) */
+.done-btn {
+  background: #10B981;
+  color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+}
+
+.done-btn:not(:disabled):hover {
+  background: #059669;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4);
+}
+
 /* Abandon button */
 .abandon-btn {
   background: transparent;
