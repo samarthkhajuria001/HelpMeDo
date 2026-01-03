@@ -17,6 +17,15 @@
 
   <!-- Right side -->
   <div class="flex items-center gap-4">
+    <!-- Focus indicator badge -->
+    @if (hasActiveSession()) {
+      <div class="focus-badge" [class.paused]="isPaused()">
+        <span class="focus-dot"></span>
+        <span class="focus-title">{{ activeTaskTitle() }}</span>
+        <span class="focus-time">{{ formattedTime() }}</span>
+      </div>
+    }
+
     <!-- AI Assistant button -->
     <button
       (click)="aiClick.emit()"

@@ -27,6 +27,13 @@ export class TaskRow implements OnDestroy {
     return this.focusService.currentTaskId() === this.task().id;
   });
 
+  // Check if another task has an active session (blocks starting here)
+  sessionActiveElsewhere = computed(() => {
+    const hasSession = this.focusService.hasActiveSession();
+    const isThisTask = this.isActiveTask();
+    return hasSession && !isThisTask;
+  });
+
   goalColor = computed(() => {
     const goalId = this.task().goal_id;
     return goalId ? this.goalsService.getGoalColor(goalId) : null;
@@ -90,10 +97,17 @@ export class TaskRow implements OnDestroy {
   private deleteTimer: ReturnType<typeof setInterval> | null = null;
   private deleteTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  toggleStatus(event: MouseEvent) {
+  async toggleStatus(event: MouseEvent) {
     event.stopPropagation();
     event.preventDefault();
     const newStatus: Status = this.isCompleted() ? 'pending' : 'completed';
+
+    // If marking task complete and this task has an active focus session,
+    // complete the focus session first (counts as a successful pomodoro)
+    if (newStatus === 'completed' && this.isActiveTask()) {
+      await this.focusService.complete();
+    }
+
     this.statusChange.emit(newStatus);
   }
 

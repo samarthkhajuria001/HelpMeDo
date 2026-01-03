@@ -111,14 +111,18 @@
               {{ task().actual_pomodoros }} of {{ task().estimated_pomodoros }} completed
             </span>
           </div>
-          <button
-            type="button"
-            class="start-focus-btn"
-            [disabled]="focusService.loading()"
-            (click)="onStartFocus($event)"
-          >
-            {{ focusService.loading() ? 'Starting...' : 'Start Focus' }}
-          </button>
+          @if (sessionActiveElsewhere()) {
+            <span class="session-blocked-msg">Focus session active on another task</span>
+          } @else {
+            <button
+              type="button"
+              class="start-focus-btn"
+              [disabled]="focusService.loading()"
+              (click)="onStartFocus($event)"
+            >
+              {{ focusService.loading() ? 'Starting...' : 'Start Focus' }}
+            </button>
+          }
         </div>
       }
 

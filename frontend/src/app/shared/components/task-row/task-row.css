@@ -416,3 +416,9 @@
   background: #93C5FD;
   cursor: not-allowed;
 }
+
+.session-blocked-msg {
+  font-size: 13px;
+  color: #78716C;
+  font-style: italic;
+}
