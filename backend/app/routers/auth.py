@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -7,6 +8,9 @@ from app.services.auth import verify_google_token, create_access_token
 from app.utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+# Dev-only flag - set HELPMEDO_DEV=1 to enable test login
+IS_DEV = os.getenv("HELPMEDO_DEV", "0") == "1"
 
 
 @router.post("/google", response_model=TokenOut)
@@ -44,3 +48,33 @@ async def get_me(current_user: User = Depends(get_current_user)):
 async def logout():
     """Logout - client should discard the token."""
     return {"message": "Logged out"}
+
+
+@router.post("/dev-login", response_model=TokenOut)
+def dev_login(db: Session = Depends(get_db)):
+    """DEV ONLY: Login as test user without Google OAuth.
+
+    Only works when HELPMEDO_DEV=1 environment variable is set.
+    DO NOT enable in production!
+    """
+    if not IS_DEV:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not found"
+        )
+
+    # Get or create test user
+    test_email = "dev@test.local"
+    user = db.query(User).filter(User.email == test_email).first()
+    if not user:
+        user = User(
+            email=test_email,
+            name="Dev Tester",
+            google_id="dev-test-user-local"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    access_token = create_access_token(user.id)
+    return TokenOut(access_token=access_token)
