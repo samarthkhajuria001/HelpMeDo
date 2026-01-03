@@ -1,0 +1,223 @@
+/* Container */
+.focus-timer {
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  border-radius: 12px;
+  padding: 20px;
+  transition: background 300ms ease-out;
+}
+
+.focus-timer.paused {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+}
+
+.focus-timer.loading {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* Header */
+.timer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+/* Living dot - pulses when running */
+.living-dot {
+  width: 8px;
+  height: 8px;
+  background: #3B82F6;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.focus-timer.paused .living-dot {
+  background: #F59E0B;
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+/* Task title */
+.task-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #57534E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Paused badge */
+.paused-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #92400E;
+  background: #FEF3C7;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  animation: fadeSlideIn 200ms ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero time display */
+.timer-display {
+  font-size: 48px;
+  font-weight: 600;
+  color: #1C1917;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+/* Progress bar */
+.progress-container {
+  margin-bottom: 20px;
+}
+
+.progress-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #3B82F6;
+  border-radius: 3px;
+  transition: width 1s linear, background-color 300ms ease-out;
+}
+
+.focus-timer.paused .progress-fill {
+  background: #F59E0B;
+}
+
+/* Control buttons */
+.timer-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+  border: none;
+  flex: 1;
+}
+
+.control-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.control-btn:not(:disabled):hover {
+  transform: scale(1.02);
+}
+
+.control-btn:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Pause button (when running) */
+.pause-btn {
+  background: #F5F5F4;
+  color: #57534E;
+  border: 1px solid #E7E5E4;
+}
+
+.pause-btn:not(:disabled):hover {
+  background: #E7E5E4;
+  border-color: #D6D3D1;
+}
+
+/* Resume button (when paused) */
+.resume-btn {
+  background: #3B82F6;
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.resume-btn:not(:disabled):hover {
+  background: #2563EB;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+}
+
+/* Abandon button */
+.abandon-btn {
+  background: transparent;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.abandon-btn:not(:disabled):hover {
+  background: #FEE2E2;
+  border-color: #FCA5A5;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .focus-timer {
+    padding: 16px;
+  }
+
+  .timer-display {
+    font-size: 40px;
+  }
+
+  .timer-controls {
+    flex-direction: column;
+  }
+
+  .control-btn {
+    padding: 12px 20px;
+    min-height: 44px;
+  }
+}

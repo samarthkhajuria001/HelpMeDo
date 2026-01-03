@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 from app.database import get_db
 from app.models import User, Task, FocusSession
 from app.models.focus_session import SessionStatus
@@ -18,6 +19,15 @@ from app.utils.dependencies import get_current_user
 router = APIRouter(prefix="/focus", tags=["focus"])
 
 
+def ensure_utc(dt: datetime) -> datetime:
+    """Ensure datetime is timezone-aware UTC (fixes SQLite naive datetime issue)."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def get_active_session_for_user(db: Session, user_id: str) -> FocusSession | None:
     """Helper to get active session for a user."""
     return db.query(FocusSession).filter(
@@ -28,18 +38,20 @@ def get_active_session_for_user(db: Session, user_id: str) -> FocusSession | Non
 
 def close_open_pause(session: FocusSession, now: datetime) -> None:
     """If session has an open pause, close it and update totals."""
-    pauses = session.pauses or []
+    pauses = list(session.pauses or [])  # Create a copy to ensure mutation is detected
     if pauses and pauses[-1].get("resumed_at") is None:
         paused_at_str = pauses[-1]["paused_at"]
         # Handle both 'Z' suffix and '+00:00' format
         if paused_at_str.endswith("Z"):
             paused_at_str = paused_at_str[:-1] + "+00:00"
         paused_at = datetime.fromisoformat(paused_at_str)
+        paused_at = ensure_utc(paused_at)  # Ensure timezone-aware
         pause_duration = int((now - paused_at).total_seconds())
 
         pauses[-1]["resumed_at"] = now.isoformat()
         session.pauses = pauses
         session.total_pause_seconds += pause_duration
+        flag_modified(session, "pauses")  # Explicitly mark JSON as modified
 
 
 @router.get("/active", response_model=FocusSessionActive)
@@ -136,9 +148,11 @@ async def pause_session(
     now = datetime.now(timezone.utc)
 
     # Add new pause entry
+    pauses = list(pauses)  # Create a copy to ensure mutation is detected
     pauses.append({"paused_at": now.isoformat()})
     session.pauses = pauses
     session.pause_count += 1
+    flag_modified(session, "pauses")  # Explicitly mark JSON as modified
 
     db.commit()
 
@@ -206,8 +220,9 @@ async def complete_session(
     session.ended_at = now
     session.status = SessionStatus.completed
 
-    # Calculate actual focus time
-    total_elapsed = int((now - session.started_at).total_seconds())
+    # Calculate actual focus time (ensure timezone-aware comparison)
+    started_at = ensure_utc(session.started_at)
+    total_elapsed = int((now - started_at).total_seconds())
     session.actual_seconds = total_elapsed - session.total_pause_seconds
 
     # Increment task's actual_pomodoros
@@ -246,8 +261,9 @@ async def abandon_session(
     session.ended_at = now
     session.status = SessionStatus.abandoned
 
-    # Calculate actual focus time
-    total_elapsed = int((now - session.started_at).total_seconds())
+    # Calculate actual focus time (ensure timezone-aware comparison)
+    started_at = ensure_utc(session.started_at)
+    total_elapsed = int((now - started_at).total_seconds())
     session.actual_seconds = total_elapsed - session.total_pause_seconds
 
     # Do NOT increment task's actual_pomodoros

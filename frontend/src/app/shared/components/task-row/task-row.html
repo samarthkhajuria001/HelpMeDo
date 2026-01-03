@@ -83,7 +83,22 @@
   @if (expanded()) {
     <div class="expanded-panel" (click)="$event.stopPropagation()">
       <!-- Focus section -->
-      @if (task().estimated_pomodoros) {
+      @if (isActiveTask()) {
+        <!-- Show timer when this task has active session -->
+        <div class="panel-section">
+          <app-focus-timer
+            [taskTitle]="task().title"
+            [remainingSeconds]="focusService.remainingSeconds()"
+            [totalSeconds]="focusService.activeSession()?.planned_seconds ?? 1500"
+            [isPaused]="focusService.isPaused()"
+            [loading]="focusService.loading()"
+            (pause)="focusService.pause()"
+            (resume)="focusService.resume()"
+            (abandon)="focusService.abandon()"
+          />
+        </div>
+      } @else if (task().estimated_pomodoros) {
+        <!-- Show Start Focus when no active session -->
         <div class="panel-section focus-section">
           <div class="focus-header">
             <app-pomodoro-dots

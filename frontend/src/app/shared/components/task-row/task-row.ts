@@ -1,24 +1,31 @@
 import { Component, input, output, computed, signal, inject, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Task, Status, Priority, Subtask, SubtaskStatus, Goal } from '../../../core/models';
-import { Goals } from '../../../core/services';
+import { Goals, Focus } from '../../../core/services';
 import { SelectDropdown, SelectOption } from '../select-dropdown/select-dropdown';
 import { DatePicker } from '../date-picker/date-picker';
 import { SubtaskItem } from '../subtask-item/subtask-item';
 import { SubtaskAdd } from '../subtask-add/subtask-add';
 import { PomodoroEstimate } from '../pomodoro-estimate/pomodoro-estimate';
 import { PomodoroDots } from '../pomodoro-dots/pomodoro-dots';
+import { FocusTimer } from '../focus-timer/focus-timer';
 
 @Component({
   selector: 'app-task-row',
-  imports: [FormsModule, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd, PomodoroEstimate, PomodoroDots],
+  imports: [FormsModule, SelectDropdown, DatePicker, SubtaskItem, SubtaskAdd, PomodoroEstimate, PomodoroDots, FocusTimer],
   templateUrl: './task-row.html',
   styleUrl: './task-row.css',
 })
 export class TaskRow implements OnDestroy {
   private goalsService = inject(Goals);
+  focusService = inject(Focus);
 
   task = input.required<Task>();
+
+  // Check if this task has the active focus session
+  isActiveTask = computed(() => {
+    return this.focusService.currentTaskId() === this.task().id;
+  });
 
   goalColor = computed(() => {
     const goalId = this.task().goal_id;

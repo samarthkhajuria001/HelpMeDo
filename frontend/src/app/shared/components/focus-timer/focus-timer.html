@@ -1,0 +1,65 @@
+<div class="focus-timer" [class.paused]="isPaused()" [class.loading]="loading()">
+  <!-- Header: Living dot + Task title + Paused badge -->
+  <div class="timer-header">
+    <div class="header-left">
+      <span class="living-dot"></span>
+      <span class="task-title">{{ taskTitle() }}</span>
+    </div>
+    @if (isPaused()) {
+      <span class="paused-badge">PAUSED</span>
+    }
+  </div>
+
+  <!-- Hero time display -->
+  <div class="timer-display">
+    {{ formattedTime() }}
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-container">
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+    </div>
+  </div>
+
+  <!-- Control buttons -->
+  <div class="timer-controls">
+    @if (isPaused()) {
+      <button
+        type="button"
+        class="control-btn resume-btn"
+        (click)="onResume()"
+        [disabled]="loading()"
+      >
+        <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+        </svg>
+        Resume
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="control-btn pause-btn"
+        (click)="onPause()"
+        [disabled]="loading()"
+      >
+        <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        Pause
+      </button>
+    }
+
+    <button
+      type="button"
+      class="control-btn abandon-btn"
+      (click)="onAbandon()"
+      [disabled]="loading()"
+    >
+      <svg class="btn-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+      </svg>
+      Abandon
+    </button>
+  </div>
+</div>
