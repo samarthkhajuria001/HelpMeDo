@@ -34,6 +34,11 @@ export class TaskRow implements OnDestroy {
     return hasSession && !isThisTask;
   });
 
+  // Check if this task has a stale (paused >30 min) session
+  isStaleTask = computed(() => {
+    return this.isActiveTask() && this.focusService.isStale();
+  });
+
   goalColor = computed(() => {
     const goalId = this.task().goal_id;
     return goalId ? this.goalsService.getGoalColor(goalId) : null;

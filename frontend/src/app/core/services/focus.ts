@@ -89,6 +89,19 @@ export class Focus implements OnDestroy {
     return lastPause.resumed_at === null;
   });
 
+  // Stale = paused for more than 30 minutes
+  isStale = computed(() => {
+    const session = this.activeSession();
+    if (!session) return false;
+    const pauses = session.pauses || [];
+    if (pauses.length === 0) return false;
+    const lastPause = pauses[pauses.length - 1];
+    if (lastPause.resumed_at !== null) return false;
+    const pausedAt = new Date(lastPause.paused_at);
+    const minutesPaused = (Date.now() - pausedAt.getTime()) / 1000 / 60;
+    return minutesPaused > 30;
+  });
+
   progressPercent = computed(() => {
     const session = this.activeSession();
     if (!session) return 0;

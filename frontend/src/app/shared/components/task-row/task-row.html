@@ -83,7 +83,34 @@
   @if (expanded()) {
     <div class="expanded-panel" (click)="$event.stopPropagation()">
       <!-- Focus section -->
-      @if (isActiveTask()) {
+      @if (isStaleTask()) {
+        <!-- Stale session prompt (paused >30 min) -->
+        <div class="panel-section stale-session">
+          <div class="stale-header">
+            <span class="stale-icon">!</span>
+            <span class="stale-title">Session paused for a while</span>
+          </div>
+          <p class="stale-msg">Would you like to continue or abandon this focus session?</p>
+          <div class="stale-actions">
+            <button
+              type="button"
+              class="stale-btn continue-btn"
+              [disabled]="focusService.loading()"
+              (click)="focusService.resume()"
+            >
+              Continue
+            </button>
+            <button
+              type="button"
+              class="stale-btn abandon-btn"
+              [disabled]="focusService.loading()"
+              (click)="focusService.abandon()"
+            >
+              Abandon
+            </button>
+          </div>
+        </div>
+      } @else if (isActiveTask()) {
         <!-- Show timer when this task has active session -->
         <div class="panel-section">
           <app-focus-timer

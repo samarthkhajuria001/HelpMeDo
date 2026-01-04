@@ -422,3 +422,81 @@
   color: #78716C;
   font-style: italic;
 }
+
+/* Stale session prompt */
+.stale-session {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.stale-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.stale-icon {
+  width: 20px;
+  height: 20px;
+  background: #F59E0B;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stale-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400E;
+}
+
+.stale-msg {
+  font-size: 13px;
+  color: #78716C;
+  margin: 0 0 12px 0;
+}
+
+.stale-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.stale-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: all 150ms ease-out;
+}
+
+.stale-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.stale-btn.continue-btn {
+  background: #3B82F6;
+  color: white;
+}
+
+.stale-btn.continue-btn:hover:not(:disabled) {
+  background: #2563EB;
+}
+
+.stale-btn.abandon-btn {
+  background: transparent;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+}
+
+.stale-btn.abandon-btn:hover:not(:disabled) {
+  background: #FEE2E2;
+}
