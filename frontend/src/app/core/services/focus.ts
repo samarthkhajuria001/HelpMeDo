@@ -21,6 +21,43 @@ export class Focus implements OnDestroy {
   // Audio for completion chime
   private completionSound: HTMLAudioElement | null = null;
 
+  // Visibility change handler reference for cleanup
+  private visibilityHandler: (() => void) | null = null;
+
+  constructor() {
+    this.setupVisibilityHandler();
+  }
+
+  /**
+   * Setup browser visibility change handler
+   * Syncs timer when user returns to tab (browsers throttle setInterval when hidden)
+   */
+  private setupVisibilityHandler(): void {
+    this.visibilityHandler = () => {
+      if (document.visibilityState === 'visible' && this.hasActiveSession() && this.isRunning()) {
+        this.syncTimerOnVisibility();
+      }
+    };
+    document.addEventListener('visibilitychange', this.visibilityHandler);
+  }
+
+  /**
+   * Sync timer with actual elapsed time when tab becomes visible
+   * Called because setInterval gets throttled/paused when tab is hidden
+   */
+  private syncTimerOnVisibility(): void {
+    const session = this.activeSession();
+    if (!session) return;
+
+    this.calculateRemainingTime(session);
+
+    // If timer expired while tab was hidden, auto-complete
+    // (user was presumably working, just had app minimized)
+    if (this.remainingSeconds() <= 0) {
+      this.complete();
+    }
+  }
+
   // Session state
   activeSession = signal<FocusSession | null>(null);
   remainingSeconds = signal(0);
@@ -426,5 +463,10 @@ export class Focus implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopTimer();
+    // Clean up visibility handler
+    if (this.visibilityHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.visibilityHandler = null;
+    }
   }
 }
