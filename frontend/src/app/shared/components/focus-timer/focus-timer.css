@@ -127,6 +127,28 @@
   background: #F59E0B;
 }
 
+/* Error message */
+.error-message {
+  background: #FEE2E2;
+  color: #991B1B;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  animation: errorSlideIn 200ms ease-out;
+}
+
+@keyframes errorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Control buttons */
 .timer-controls {
   display: flex;

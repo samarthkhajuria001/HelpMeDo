@@ -92,6 +92,7 @@
             [totalSeconds]="focusService.activeSession()?.planned_seconds ?? 1500"
             [isPaused]="focusService.isPaused()"
             [loading]="focusService.loading()"
+            [error]="focusService.error()"
             (pause)="focusService.pause()"
             (resume)="focusService.resume()"
             (done)="focusService.complete()"

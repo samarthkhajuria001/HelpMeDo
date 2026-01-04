@@ -1,4 +1,4 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, signal, effect } from '@angular/core';
 
 @Component({
   selector: 'app-focus-timer',
@@ -13,6 +13,34 @@ export class FocusTimer {
   totalSeconds = input<number>(1500);
   isPaused = input<boolean>(false);
   loading = input<boolean>(false);
+  error = input<string | null>(null);
+
+  // Local error display state (for auto-dismiss)
+  protected showError = signal(false);
+  private errorTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    // Auto-show and auto-dismiss error after 4 seconds
+    effect(() => {
+      const err = this.error();
+      if (err) {
+        this.showError.set(true);
+        this.clearErrorTimeout();
+        this.errorTimeout = setTimeout(() => {
+          this.showError.set(false);
+        }, 4000);
+      } else {
+        this.showError.set(false);
+      }
+    });
+  }
+
+  private clearErrorTimeout(): void {
+    if (this.errorTimeout) {
+      clearTimeout(this.errorTimeout);
+      this.errorTimeout = null;
+    }
+  }
 
   // Outputs
   pause = output<void>();
