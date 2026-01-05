@@ -73,6 +73,7 @@ export class Tasks {
   async loadTasks(timeHorizon?: TimeHorizon, goalId?: string): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
+    this.tasks.set([]);  // Clear old data to prevent stale flash during view switch
     this.currentHorizon.set(timeHorizon || null);
     this.currentGoalId.set(goalId || null);
 
@@ -177,6 +178,7 @@ export class Tasks {
   async loadCompletedTasks(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
+    this.tasks.set([]);  // Clear old data to prevent stale flash during view switch
     this.currentHorizon.set(null);
     this.currentGoalId.set(null);
 

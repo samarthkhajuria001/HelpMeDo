@@ -289,20 +289,15 @@ export class TaskRow implements OnDestroy {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Don't show "Today" - it's redundant on Today page
-    if (dueDate.toDateString() === today.toDateString()) {
-      return null;
+    if (dueDate < today) {
+      // Overdue - show the actual date
+      return dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } else if (dueDate.toDateString() === today.toDateString()) {
+      return 'Today';
     } else if (dueDate.toDateString() === tomorrow.toDateString()) {
       return 'Tomorrow';
     } else {
       return dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
-  });
-
-  formattedCreatedDate = computed(() => {
-    const date = this.task().created_at;
-    if (!date) return null;
-    const createdDate = new Date(date);
-    return createdDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   });
 }

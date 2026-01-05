@@ -1,6 +1,7 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, and_
 from app.database import get_db
 from app.models import User, Task, Subtask, Goal
 from app.models.task import Priority, Status, TimeHorizon
@@ -8,6 +9,15 @@ from app.schemas import TaskCreate, TaskUpdate, TaskOut, SubtaskCreate, SubtaskU
 from app.utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
+
+
+def get_end_of_week() -> date:
+    """Get the date of the end of the current week (Sunday)."""
+    today = date.today()
+    days_until_sunday = 6 - today.weekday()  # weekday(): Mon=0, Sun=6
+    if days_until_sunday < 0:
+        days_until_sunday = 0
+    return today + timedelta(days=days_until_sunday)
 
 
 @router.get("", response_model=list[TaskOut])
@@ -19,11 +29,47 @@ async def list_tasks(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """List tasks with optional filters."""
+    """List tasks with optional filters.
+
+    For time_horizon filtering, we use actual date comparison instead of stored field:
+    - 'today': tasks with no due_date marked as 'today', OR tasks with due_date <= today
+    - 'week': tasks with no due_date marked as 'week', OR tasks with due_date > today and <= end of week
+    - 'someday': tasks with no due_date marked as 'someday', OR tasks with due_date > end of week
+    """
     query = db.query(Task).filter(Task.user_id == current_user.id)
 
     if time_horizon:
-        query = query.filter(Task.time_horizon == time_horizon)
+        today_date = date.today()
+        end_of_week = get_end_of_week()
+
+        if time_horizon == TimeHorizon.today:
+            # Tasks with no due_date that user marked as 'today'
+            # OR tasks with due_date that is today or overdue
+            query = query.filter(
+                or_(
+                    and_(Task.due_date == None, Task.time_horizon == TimeHorizon.today),
+                    Task.due_date <= today_date
+                )
+            )
+        elif time_horizon == TimeHorizon.week:
+            # Tasks with no due_date that user marked as 'week'
+            # OR tasks with due_date > today and <= end of week
+            query = query.filter(
+                or_(
+                    and_(Task.due_date == None, Task.time_horizon == TimeHorizon.week),
+                    and_(Task.due_date > today_date, Task.due_date <= end_of_week)
+                )
+            )
+        elif time_horizon == TimeHorizon.someday:
+            # Tasks with no due_date that user marked as 'someday'
+            # OR tasks with due_date > end of week
+            query = query.filter(
+                or_(
+                    and_(Task.due_date == None, Task.time_horizon == TimeHorizon.someday),
+                    Task.due_date > end_of_week
+                )
+            )
+
     if goal_id:
         query = query.filter(Task.goal_id == goal_id)
     if priority:
