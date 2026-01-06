@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = ""
     CORS_ORIGINS: str = "http://localhost:4200"
     PORT: int = 8000
+    SENTRY_DSN: str = ""  # Get from sentry.io - leave empty to disable
 
     @property
     def cors_origins_list(self) -> list[str]:

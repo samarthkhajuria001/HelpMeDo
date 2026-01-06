@@ -29,6 +29,7 @@ export class QuickAdd {
   estimatedPomodoros = signal<number | null>(null);
 
   constructor() {
+    
     // Sync goalId with defaultGoalId when it changes
     effect(() => {
       const defaultId = this.defaultGoalId();
@@ -42,6 +43,11 @@ export class QuickAdd {
       const horizon = this.defaultHorizon();
       this.dueDate.set(this.getDefaultDueDate(horizon));
     }, { allowSignalWrites: true });
+
+    // TEMPORARY: Test Sentry - remove after testing
+    // setTimeout(() => {
+    //   throw new Error('Sentry test error from QuickAdd component');
+    // }, 3000);
   }
 
   // Calculate default due date based on time horizon
