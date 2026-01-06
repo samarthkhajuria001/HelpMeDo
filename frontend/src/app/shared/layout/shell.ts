@@ -4,12 +4,13 @@ import { Header } from './header';
 import { NavItem } from '../components/nav-item/nav-item';
 import { UserAccount } from '../components/user-account/user-account';
 import { GoalsSection } from '../components/goals-section/goals-section';
+import { AIChat } from '../components/ai-chat/ai-chat';
 import { Tasks, Focus } from '../../core/services';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, Header, NavItem, UserAccount, GoalsSection],
+  imports: [RouterOutlet, Header, NavItem, UserAccount, GoalsSection, AIChat],
   templateUrl: './shell.html',
   styleUrl: './shell.css'
 })
