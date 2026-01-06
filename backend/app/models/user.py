@@ -12,6 +12,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False)
     name = Column(String, nullable=False)
     google_id = Column(String, unique=True, nullable=False)
+    picture = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     # User settings (JSON object for pomodoro preferences, etc.)

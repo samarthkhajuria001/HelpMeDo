@@ -19,7 +19,8 @@ def verify_google_token(credential: str) -> dict | None:
         return {
             "google_id": idinfo["sub"],
             "email": idinfo["email"],
-            "name": idinfo.get("name", idinfo["email"].split("@")[0])
+            "name": idinfo.get("name", idinfo["email"].split("@")[0]),
+            "picture": idinfo.get("picture")
         }
     except ValueError:
         return None

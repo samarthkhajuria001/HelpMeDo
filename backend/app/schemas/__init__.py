@@ -1,4 +1,4 @@
-from app.schemas.user import UserOut
+from app.schemas.user import UserOut, UserSettingsUpdate
 from app.schemas.goal import GoalCreate, GoalUpdate, GoalOut
 from app.schemas.task import (
     TaskCreate,

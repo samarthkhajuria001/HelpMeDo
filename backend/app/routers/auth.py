@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User
-from app.schemas import GoogleToken, TokenOut, UserOut
+from app.schemas import GoogleToken, TokenOut, UserOut, UserSettingsUpdate
 from app.services.auth import verify_google_token, create_access_token
 from app.utils.dependencies import get_current_user
 
@@ -28,11 +28,16 @@ def google_login(data: GoogleToken, db: Session = Depends(get_db)):
         user = User(
             email=google_user["email"],
             name=google_user["name"],
-            google_id=google_user["google_id"]
+            google_id=google_user["google_id"],
+            picture=google_user.get("picture")
         )
         db.add(user)
         db.commit()
         db.refresh(user)
+    else:
+        # Update picture on each login in case it changed
+        user.picture = google_user.get("picture")
+        db.commit()
 
     access_token = create_access_token(user.id)
     return TokenOut(access_token=access_token)
@@ -41,6 +46,24 @@ def google_login(data: GoogleToken, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserOut)
 async def get_me(current_user: User = Depends(get_current_user)):
     """Get current authenticated user."""
+    return current_user
+
+
+@router.patch("/me", response_model=UserOut)
+def update_me(
+    data: UserSettingsUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Update current user settings."""
+    settings = dict(current_user.settings) if current_user.settings else {}
+
+    if data.agent_instructions is not None:
+        settings["agent_instructions"] = data.agent_instructions
+
+    current_user.settings = settings
+    db.commit()
+    db.refresh(current_user)
     return current_user
 
 
