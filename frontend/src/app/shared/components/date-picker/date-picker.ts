@@ -36,10 +36,10 @@ export class DatePicker {
     return this.formatDate(new Date());
   });
 
-  effectiveValue = computed(() => this.value() || this.todayString());
-
   displayValue = computed(() => {
-    const val = this.effectiveValue();
+    const val = this.value();
+    if (!val) return 'No deadline';
+
     const date = this.parseDate(val);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -47,8 +47,14 @@ export class DatePicker {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Calculate this Sunday
+    const thisSunday = new Date(today);
+    const daysUntilSunday = (7 - today.getDay()) % 7;
+    thisSunday.setDate(thisSunday.getDate() + daysUntilSunday);
+
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+    if (date.toDateString() === thisSunday.toDateString() && daysUntilSunday > 1) return 'This week';
 
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   });
@@ -121,12 +127,16 @@ export class DatePicker {
         date = new Date(today);
         date.setDate(date.getDate() + 1);
         break;
-      case 'nextWeek':
+      case 'thisWeek':
+        // This week = coming Sunday (end of week)
+        // Sunday is day 0, so if today is Sunday, daysUntilSunday = 0
+        // If today is Monday (1), daysUntilSunday = 6
         date = new Date(today);
-        date.setDate(date.getDate() + 7);
+        const daysUntilSunday = (7 - today.getDay()) % 7;
+        date.setDate(date.getDate() + daysUntilSunday);
         break;
-      case 'clear':
-        this.change.emit(this.todayString());
+      case 'noDeadline':
+        this.change.emit(null);
         this.close();
         return;
     }
@@ -162,7 +172,9 @@ export class DatePicker {
   }
 
   isSelected(date: Date): boolean {
-    return this.formatDate(date) === this.effectiveValue();
+    const val = this.value();
+    if (!val) return false;
+    return this.formatDate(date) === val;
   }
 
   isPast(date: Date): boolean {

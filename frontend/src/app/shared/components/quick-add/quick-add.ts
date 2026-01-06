@@ -35,7 +35,40 @@ export class QuickAdd {
       if (defaultId) {
         this.goalId.set(defaultId);
       }
-    });
+    }, { allowSignalWrites: true });
+
+    // Set initial due date based on defaultHorizon
+    effect(() => {
+      const horizon = this.defaultHorizon();
+      this.dueDate.set(this.getDefaultDueDate(horizon));
+    }, { allowSignalWrites: true });
+  }
+
+  // Calculate default due date based on time horizon
+  private getDefaultDueDate(horizon: TimeHorizon): string | null {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    switch (horizon) {
+      case 'today':
+        return this.formatDate(today);
+      case 'week':
+        // This week = coming Sunday
+        const daysUntilSunday = (7 - today.getDay()) % 7;
+        const sunday = new Date(today);
+        sunday.setDate(sunday.getDate() + daysUntilSunday);
+        return this.formatDate(sunday);
+      case 'someday':
+        return null;
+    }
+  }
+
+  // Format date as YYYY-MM-DD
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   goalOptions = computed<SelectOption[]>(() => {
@@ -127,7 +160,7 @@ export class QuickAdd {
   private resetForm() {
     this.title.set('');
     this.priority.set('medium');
-    this.dueDate.set(null);
+    this.dueDate.set(this.getDefaultDueDate(this.defaultHorizon()));
     this.goalId.set(this.defaultGoalId());
     this.estimatedPomodoros.set(null);
     this.expanded.set(false);
