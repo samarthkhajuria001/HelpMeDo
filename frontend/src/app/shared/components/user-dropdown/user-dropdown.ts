@@ -1,4 +1,5 @@
 import { Component, inject, output, HostListener } from '@angular/core';
+import { Router } from '@angular/router';
 import { Auth } from '../../../core/auth';
 
 @Component({
@@ -9,6 +10,7 @@ import { Auth } from '../../../core/auth';
 })
 export class UserDropdown {
   private auth = inject(Auth);
+  private router = inject(Router);
 
   close = output<void>();
 
@@ -18,7 +20,7 @@ export class UserDropdown {
   }
 
   onProfile() {
-    // TODO: Navigate to profile page
+    this.router.navigate(['/profile']);
     this.close.emit();
   }
 

@@ -1,0 +1,86 @@
+<div class="profile-page">
+  <h1 class="text-2xl font-semibold text-text-primary mb-6">Profile</h1>
+
+  @if (loading() && !user()) {
+    <div class="loading">Loading...</div>
+  } @else if (user()) {
+    <!-- User Info Card -->
+    <div class="user-card">
+      <div class="user-header">
+        @if (user()!.picture) {
+          <img [src]="user()!.picture" alt="Profile" class="avatar" referrerpolicy="no-referrer" />
+        } @else {
+          <div class="avatar-initials">{{ getInitials() }}</div>
+        }
+        <div class="user-info">
+          <div class="user-name">{{ user()!.name }}</div>
+          <div class="user-email">{{ user()!.email }}</div>
+          <div class="user-joined">
+            <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+            </svg>
+            Member since {{ formatDate(user()!.created_at) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Instructions -->
+    <div class="settings-card">
+      <div class="settings-header">
+        <div class="settings-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+          </svg>
+        </div>
+        <h2 class="settings-title">AI Assistant Instructions</h2>
+      </div>
+      <p class="settings-description">
+        Personalize how the AI assistant helps you. Share your preferences, work context, or any specific guidelines.
+      </p>
+      <textarea
+        class="instructions-input"
+        [value]="agentInstructions()"
+        (input)="onInstructionsChange($any($event.target).value)"
+        placeholder="E.g., I'm a software developer working on web projects. I prefer brief, direct answers. Help me stay focused on one task at a time..."
+        maxlength="1000"
+        rows="4"
+      ></textarea>
+      <div class="settings-footer">
+        <span class="char-count">{{ agentInstructions().length }} / 1000</span>
+        <button
+          class="save-btn"
+          [class.saved]="saved()"
+          (click)="saveInstructions()"
+          [disabled]="saving()"
+        >
+          @if (saving()) {
+            Saving...
+          } @else if (saved()) {
+            Saved
+          } @else {
+            Save Changes
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Account Info -->
+    <div class="account-card">
+      <div class="account-header">
+        <div class="account-icon">
+          <svg class="google-icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+        </div>
+        <div class="account-info">
+          <div class="account-label">Signed in with</div>
+          <div class="account-value">Google</div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

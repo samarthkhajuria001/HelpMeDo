@@ -33,6 +33,10 @@ export const routes: Routes = [
       {
         path: 'goal/:id',
         loadComponent: () => import('./features/goal/goal').then(m => m.Goal)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then(m => m.Profile)
       }
     ]
   }
