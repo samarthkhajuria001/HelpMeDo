@@ -26,6 +26,8 @@ async def list_tasks(
     goal_id: str | None = None,
     priority: Priority | None = None,
     status_filter: Status | None = Query(None, alias="status"),
+    overdue_min_days: int | None = Query(None, description="Minimum days overdue (exclusive). Use 3 to get tasks 4+ days overdue."),
+    overdue_max_days: int | None = Query(None, description="Maximum days overdue (inclusive). Use 3 to get tasks up to 3 days overdue."),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -35,6 +37,10 @@ async def list_tasks(
     - 'today': tasks with no due_date marked as 'today', OR tasks with due_date <= today
     - 'week': tasks with no due_date marked as 'week', OR tasks with due_date > today and <= end of week
     - 'someday': tasks with no due_date marked as 'someday', OR tasks with due_date > end of week
+
+    Overdue filtering (for time_horizon='today'):
+    - overdue_max_days: limits how far back to include overdue tasks (e.g., 3 = last 3 days)
+    - overdue_min_days: excludes recent overdue tasks (e.g., 3 = only 4+ days overdue)
     """
     query = db.query(Task).filter(Task.user_id == current_user.id)
 
@@ -44,13 +50,42 @@ async def list_tasks(
 
         if time_horizon == TimeHorizon.today:
             # Tasks with no due_date that user marked as 'today'
-            # OR tasks with due_date that is today or overdue
-            query = query.filter(
-                or_(
-                    and_(Task.due_date == None, Task.time_horizon == TimeHorizon.today),
-                    Task.due_date <= today_date
+            # OR tasks with due_date that is today or overdue (within limits)
+            overdue_cutoff_max = today_date - timedelta(days=overdue_max_days) if overdue_max_days else None
+            overdue_cutoff_min = today_date - timedelta(days=overdue_min_days) if overdue_min_days else None
+
+            if overdue_cutoff_max and overdue_cutoff_min:
+                # Both limits: tasks between min and max days overdue
+                query = query.filter(
+                    or_(
+                        and_(Task.due_date == None, Task.time_horizon == TimeHorizon.today),
+                        and_(Task.due_date >= overdue_cutoff_max, Task.due_date < overdue_cutoff_min)
+                    )
                 )
-            )
+            elif overdue_cutoff_max:
+                # Max limit only: tasks from today back to max days ago
+                query = query.filter(
+                    or_(
+                        and_(Task.due_date == None, Task.time_horizon == TimeHorizon.today),
+                        and_(Task.due_date >= overdue_cutoff_max, Task.due_date <= today_date)
+                    )
+                )
+            elif overdue_cutoff_min:
+                # Min limit only: tasks older than min days
+                query = query.filter(
+                    or_(
+                        and_(Task.due_date == None, Task.time_horizon == TimeHorizon.today),
+                        Task.due_date < overdue_cutoff_min
+                    )
+                )
+            else:
+                # No limits: all overdue tasks (original behavior)
+                query = query.filter(
+                    or_(
+                        and_(Task.due_date == None, Task.time_horizon == TimeHorizon.today),
+                        Task.due_date <= today_date
+                    )
+                )
         elif time_horizon == TimeHorizon.week:
             # Tasks with no due_date that user marked as 'week'
             # OR tasks with due_date > today and <= end of week

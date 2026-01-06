@@ -35,6 +35,7 @@ export interface TaskCounts {
   today: number;
   week: number;
   someday: number;
+  overdue: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -45,7 +46,7 @@ export class Tasks {
   tasks = signal<Task[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-  counts = signal<TaskCounts>({ today: 0, week: 0, someday: 0 });
+  counts = signal<TaskCounts>({ today: 0, week: 0, someday: 0, overdue: 0 });
 
   private currentHorizon = signal<TimeHorizon | null>(null);
   private currentGoalId = signal<string | null>(null);
@@ -70,7 +71,11 @@ export class Tasks {
     return this.tasks().filter(t => t.status === 'pending').length;
   });
 
-  async loadTasks(timeHorizon?: TimeHorizon, goalId?: string): Promise<void> {
+  async loadTasks(
+    timeHorizon?: TimeHorizon,
+    goalId?: string,
+    options?: { overdueMaxDays?: number; overdueMinDays?: number }
+  ): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     this.tasks.set([]);  // Clear old data to prevent stale flash during view switch
@@ -83,6 +88,12 @@ export class Tasks {
     }
     if (goalId) {
       params = params.set('goal_id', goalId);
+    }
+    if (options?.overdueMaxDays !== undefined) {
+      params = params.set('overdue_max_days', options.overdueMaxDays.toString());
+    }
+    if (options?.overdueMinDays !== undefined) {
+      params = params.set('overdue_min_days', options.overdueMinDays.toString());
     }
 
     try {
@@ -197,16 +208,22 @@ export class Tasks {
 
   async loadCounts(): Promise<void> {
     try {
-      const [today, week, someday] = await Promise.all([
-        this.http.get<Task[]>(this.apiUrl, { params: { time_horizon: 'today' } }).toPromise(),
+      const [today, week, someday, overdue] = await Promise.all([
+        this.http.get<Task[]>(this.apiUrl, {
+          params: { time_horizon: 'today', overdue_max_days: '3' }
+        }).toPromise(),
         this.http.get<Task[]>(this.apiUrl, { params: { time_horizon: 'week' } }).toPromise(),
-        this.http.get<Task[]>(this.apiUrl, { params: { time_horizon: 'someday' } }).toPromise()
+        this.http.get<Task[]>(this.apiUrl, { params: { time_horizon: 'someday' } }).toPromise(),
+        this.http.get<Task[]>(this.apiUrl, {
+          params: { time_horizon: 'today', overdue_min_days: '3', overdue_max_days: '14' }
+        }).toPromise()
       ]);
 
       this.counts.set({
         today: (today || []).filter(t => t.status === 'pending').length,
         week: (week || []).filter(t => t.status === 'pending').length,
-        someday: (someday || []).filter(t => t.status === 'pending').length
+        someday: (someday || []).filter(t => t.status === 'pending').length,
+        overdue: (overdue || []).filter(t => t.status === 'pending').length
       });
     } catch {
       // Silently fail for counts

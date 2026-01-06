@@ -16,7 +16,7 @@ export class Today implements OnInit {
 
   private todayStr = this.getTodayString();
 
-  // Tasks that are overdue (due_date < today)
+  // Tasks that are overdue (due_date < today) - now limited to 3 days by backend
   overdueTasks = computed(() => {
     return this.tasksService.tasks().filter(t => {
       if (!t.due_date) return false;
@@ -35,7 +35,8 @@ export class Today implements OnInit {
   hasOverdue = computed(() => this.overdueTasks().length > 0);
 
   ngOnInit() {
-    this.tasksService.loadTasks('today');
+    // Load today tasks with overdue limited to last 3 days
+    this.tasksService.loadTasks('today', undefined, { overdueMaxDays: 3 });
   }
 
   private getTodayString(): string {

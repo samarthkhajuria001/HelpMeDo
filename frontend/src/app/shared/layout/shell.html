@@ -20,6 +20,7 @@
         <app-nav-item label="Someday" route="/someday" [count]="counts().someday || null" />
         <div class="nav-divider"></div>
         <app-nav-item label="Completed" route="/completed" />
+        <app-nav-item label="Overdue" route="/overdue" [count]="counts().overdue || null" />
       </nav>
 
       <!-- Goals -->
@@ -43,6 +44,7 @@
             <app-nav-item label="Someday" route="/someday" [count]="counts().someday || null" (click)="closeSidebar()" />
             <div class="nav-divider"></div>
             <app-nav-item label="Completed" route="/completed" (click)="closeSidebar()" />
+            <app-nav-item label="Overdue" route="/overdue" [count]="counts().overdue || null" (click)="closeSidebar()" />
           </nav>
 
           <!-- Goals -->
