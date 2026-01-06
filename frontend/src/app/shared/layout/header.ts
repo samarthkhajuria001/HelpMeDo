@@ -1,6 +1,7 @@
 import { Component, output, inject, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Focus, Tasks } from '../../core/services';
+import { Auth } from '../../core/auth';
 
 @Component({
   selector: 'app-header',
@@ -12,11 +13,16 @@ import { Focus, Tasks } from '../../core/services';
 export class Header {
   private focusService = inject(Focus);
   private tasksService = inject(Tasks);
+  private auth = inject(Auth);
 
   menuClick = output<void>();
   aiClick = output<void>();
 
   protected today = new Date();
+
+  logout() {
+    this.auth.logout();
+  }
 
   // Focus session state for header indicator
   protected hasActiveSession = this.focusService.hasActiveSession;

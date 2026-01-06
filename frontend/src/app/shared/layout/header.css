@@ -72,3 +72,16 @@
     max-width: none;
   }
 }
+
+/* Logout button */
+.logout-btn {
+  padding: 8px;
+  color: var(--text-tertiary);
+  border-radius: 6px;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.logout-btn:hover {
+  color: #DC2626;
+  background-color: #FEF2F2;
+}
