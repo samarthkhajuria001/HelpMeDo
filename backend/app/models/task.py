@@ -48,6 +48,10 @@ class Task(Base):
     actual_pomodoros = Column(Integer, nullable=False, default=0)
     first_focused_at = Column(DateTime, nullable=True)
 
+    # AI tracking
+    move_count = Column(Integer, nullable=False, default=0)
+    source = Column(String(50), nullable=False, default="manual")
+
     user = relationship("User", back_populates="tasks")
     goal = relationship("Goal", back_populates="tasks")
     subtasks = relationship("Subtask", back_populates="task", cascade="all, delete-orphan")

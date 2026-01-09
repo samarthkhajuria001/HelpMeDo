@@ -21,3 +21,5 @@ class User(Base):
     goals = relationship("Goal", back_populates="user")
     tasks = relationship("Task", back_populates="user")
     focus_sessions = relationship("FocusSession", back_populates="user", cascade="all, delete-orphan")
+    chat_messages = relationship("ChatMessage", back_populates="user", cascade="all, delete-orphan")
+    ai_audit_logs = relationship("AIAuditLog", back_populates="user")
