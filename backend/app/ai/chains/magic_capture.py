@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from app.ai.config import get_llm

@@ -29,7 +29,7 @@ export class AIChat implements AfterViewInit {
     {
       id: '1',
       role: 'assistant',
-      content: "Hi! I'm your AI assistant. I can help you create tasks quickly. Try something like 'buy milk, call mom tomorrow, fix bike'.",
+      content: "Hi! I'm Lufy, your task assistant. Tell me what you need to do, like 'buy milk, call mom tomorrow, fix bike'.",
       timestamp: new Date()
     }
   ]);
