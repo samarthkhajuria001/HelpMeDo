@@ -139,26 +139,43 @@ async def execute_action(
     total = len(request.data)
     created_count = len(created_ids)
 
+    # Build message with task list
+    created_titles = [t.title for t in request.data[:created_count]]
+
     if created_count == 0 and errors:
-        return ExecuteResponse(
-            success=False,
-            message="Failed to create tasks",
-            errors=errors
-        )
+        msg = "Failed to create tasks"
+        success = False
     elif created_count < total:
-        return ExecuteResponse(
-            success=False,
-            message=f"Created {created_count} of {total} tasks",
-            created_ids=created_ids,
-            errors=errors
-        )
+        task_list = "\n".join(f"• {title}" for title in created_titles)
+        msg = f"Created {created_count} of {total} tasks:\n{task_list}"
+        success = False
     else:
-        msg = f"Created {created_count} task" if created_count == 1 else f"Created {created_count} tasks"
-        return ExecuteResponse(
-            success=True,
-            message=msg,
-            created_ids=created_ids
+        if created_count == 1:
+            msg = f"Created 1 task:\n• {created_titles[0]}"
+        else:
+            task_list = "\n".join(f"• {title}" for title in created_titles)
+            msg = f"Created {created_count} tasks:\n{task_list}"
+        success = True
+
+    # Save confirmation message to chat history
+    if request.session_id and created_count > 0:
+        confirm_msg = ChatMessage(
+            user_id=current_user.id,
+            session_id=request.session_id,
+            role="assistant",
+            content=msg,
+            message_metadata={"executed_task_ids": created_ids},
+            created_at=datetime.now(timezone.utc)
         )
+        db.add(confirm_msg)
+        db.commit()
+
+    return ExecuteResponse(
+        success=success,
+        message=msg,
+        created_ids=created_ids if created_ids else None,
+        errors=errors if errors else None
+    )
 
 
 @router.get("/history")
