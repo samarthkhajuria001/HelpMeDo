@@ -82,24 +82,29 @@ export class AIChat implements AfterViewInit {
 
     try {
       const response = await this.aiService.sendMessage(content);
+      this.isTyping.set(false);
 
+      const messageId = (Date.now() + 1).toString();
       const aiMessage: DisplayMessage = {
-        id: (Date.now() + 1).toString(),
+        id: messageId,
         role: 'assistant',
-        content: response.message,
+        content: '',
         timestamp: new Date(),
         actions: response.actions,
         actionType: response.action_type
       };
 
       this.messages.update(msgs => [...msgs, aiMessage]);
+      await this.typewriterEffect(messageId, response.message);
 
       if (response.actions && response.actions.length > 0 && response.action_type) {
         this.pendingActions.set(response.actions);
         this.pendingActionType.set(response.action_type);
+        this.scrollToBottom();
       }
 
     } catch {
+      this.isTyping.set(false);
       const errorMessage: DisplayMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -107,8 +112,6 @@ export class AIChat implements AfterViewInit {
         timestamp: new Date()
       };
       this.messages.update(msgs => [...msgs, errorMessage]);
-    } finally {
-      this.isTyping.set(false);
       this.scrollToBottom();
     }
   }
@@ -206,5 +209,23 @@ export class AIChat implements AfterViewInit {
     textarea.style.height = 'auto';
     const maxHeight = 72;
     textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+  }
+
+  private async typewriterEffect(messageId: string, fullText: string): Promise<void> {
+    const chunkSize = 3;
+    const delay = 15;
+
+    for (let i = 0; i <= fullText.length; i += chunkSize) {
+      const partialText = fullText.slice(0, i);
+      this.messages.update(msgs =>
+        msgs.map(m => m.id === messageId ? { ...m, content: partialText } : m)
+      );
+      this.scrollToBottom();
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    this.messages.update(msgs =>
+      msgs.map(m => m.id === messageId ? { ...m, content: fullText } : m)
+    );
   }
 }
