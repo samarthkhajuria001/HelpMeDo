@@ -7,6 +7,9 @@ from enum import Enum
 class Intent(str, Enum):
     MAGIC_CAPTURE = "magic_capture"
     GENERAL_CHAT = "general_chat"
+    LIBRARIAN = "librarian"
+    REALITY_CHECK = "reality_check"
+    SMART_REVIEW = "smart_review"
 
 
 class IntentClassification(BaseModel):
