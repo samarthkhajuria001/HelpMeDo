@@ -2,6 +2,7 @@ import { Component, signal, computed, ElementRef, ViewChild, AfterViewInit, inje
 import { FormsModule } from '@angular/forms';
 import { AiService } from '../../../core/services/ai';
 import { Tasks } from '../../../core/services/tasks';
+import { UserService } from '../../../core/services/user';
 import { ParsedTask } from '../../../core/models';
 
 interface DisplayMessage {
@@ -21,9 +22,14 @@ interface DisplayMessage {
 })
 export class AIChat implements AfterViewInit {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+  @ViewChild('messageInput') private messageInput!: ElementRef<HTMLTextAreaElement>;
 
   private aiService = inject(AiService);
   private tasksService = inject(Tasks);
+  private userService = inject(UserService);
+
+  userPicture = computed(() => this.userService.user()?.picture || null);
+  userInitials = computed(() => this.userService.getInitials());
 
   messages = signal<DisplayMessage[]>([
     {
@@ -192,5 +198,13 @@ export class AIChat implements AfterViewInit {
     if (!dateStr) return '';
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  resizeTextarea(): void {
+    const textarea = this.messageInput?.nativeElement;
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    const maxHeight = 72;
+    textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
   }
 }
