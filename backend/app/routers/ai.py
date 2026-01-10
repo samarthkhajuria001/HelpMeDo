@@ -24,13 +24,18 @@ async def chat(
 
     custom_instructions = current_user.settings.get("agent_instructions", "")
 
+    history = None
+    if request.history:
+        history = [{"role": h.role, "content": h.content} for h in request.history]
+
     try:
         result = process_message(
             message=request.message,
             user_id=current_user.id,
             db=db,
             client_date=request.client_date,
-            custom_instructions=custom_instructions
+            custom_instructions=custom_instructions,
+            history=history
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")

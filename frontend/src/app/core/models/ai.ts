@@ -1,9 +1,15 @@
 import { Priority, TimeHorizon } from './task';
 
+export interface ChatHistoryItem {
+  role: string;
+  content: string;
+}
+
 export interface ChatRequest {
   message: string;
   session_id?: string;
   client_date?: string;
+  history?: ChatHistoryItem[];
 }
 
 export interface ParsedTask {

@@ -9,7 +9,7 @@ if settings.LANGCHAIN_API_KEY:
     os.environ["LANGCHAIN_PROJECT"] = settings.LANGCHAIN_PROJECT
 
 
-def get_llm(model: str = "gpt-5-mini", temperature: float = 0.25):
+def get_llm(model: str = "gpt-5-nano", temperature: float = 0.25):
     return ChatOpenAI(
         model=model,
         temperature=temperature,

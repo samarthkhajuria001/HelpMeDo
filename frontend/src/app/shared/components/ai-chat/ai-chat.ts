@@ -1,18 +1,9 @@
 import { Component, signal, computed, ElementRef, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AiService } from '../../../core/services/ai';
+import { AiService, DisplayMessage } from '../../../core/services/ai';
 import { Tasks } from '../../../core/services/tasks';
 import { UserService } from '../../../core/services/user';
 import { ParsedTask } from '../../../core/models';
-
-interface DisplayMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  actions?: ParsedTask[];
-  actionType?: string;
-}
 
 @Component({
   selector: 'app-ai-chat',
@@ -30,17 +21,15 @@ export class AIChat implements AfterViewInit {
 
   userPicture = computed(() => this.userService.user()?.picture || null);
   userInitials = computed(() => this.userService.getInitials());
-
-  messages = signal<DisplayMessage[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: "Hi! I'm Lufy, your task assistant. Tell me what you need to do, like 'buy milk, call mom tomorrow, fix bike'.",
-      timestamp: new Date()
-    }
-  ]);
+  messages = computed(() => this.aiService.messages());
 
   inputMessage = signal('');
+
+  constructor() {
+    this.aiService.loadHistory().then(() => {
+      this.scrollToBottom();
+    });
+  }
   isTyping = signal(false);
   pendingActions = signal<ParsedTask[]>([]);
   pendingActionType = signal<string | null>(null);
@@ -73,7 +62,7 @@ export class AIChat implements AfterViewInit {
       timestamp: new Date()
     };
 
-    this.messages.update(msgs => [...msgs, userMessage]);
+    this.aiService.addMessage(userMessage);
     this.inputMessage.set('');
     this.scrollToBottom();
 
@@ -94,7 +83,7 @@ export class AIChat implements AfterViewInit {
         actionType: response.action_type
       };
 
-      this.messages.update(msgs => [...msgs, aiMessage]);
+      this.aiService.addMessage(aiMessage);
       await this.typewriterEffect(messageId, response.message);
 
       if (response.actions && response.actions.length > 0 && response.action_type) {
@@ -111,7 +100,7 @@ export class AIChat implements AfterViewInit {
         content: "Sorry, I encountered an error. Please try again.",
         timestamp: new Date()
       };
-      this.messages.update(msgs => [...msgs, errorMessage]);
+      this.aiService.addMessage(errorMessage);
       this.scrollToBottom();
     }
   }
@@ -133,7 +122,7 @@ export class AIChat implements AfterViewInit {
         content: response.message,
         timestamp: new Date()
       };
-      this.messages.update(msgs => [...msgs, resultMessage]);
+      this.aiService.addMessage(resultMessage);
 
       if (response.success) {
         this.pendingActions.set([]);
@@ -153,7 +142,7 @@ export class AIChat implements AfterViewInit {
         content: "Failed to create tasks. Please try again.",
         timestamp: new Date()
       };
-      this.messages.update(msgs => [...msgs, errorMessage]);
+      this.aiService.addMessage(errorMessage);
     } finally {
       this.isExecuting.set(false);
       this.scrollToBottom();
@@ -170,7 +159,7 @@ export class AIChat implements AfterViewInit {
       content: "No problem! Let me know if you'd like to try again.",
       timestamp: new Date()
     };
-    this.messages.update(msgs => [...msgs, cancelMessage]);
+    this.aiService.addMessage(cancelMessage);
     this.scrollToBottom();
   }
 
@@ -217,15 +206,11 @@ export class AIChat implements AfterViewInit {
 
     for (let i = 0; i <= fullText.length; i += chunkSize) {
       const partialText = fullText.slice(0, i);
-      this.messages.update(msgs =>
-        msgs.map(m => m.id === messageId ? { ...m, content: partialText } : m)
-      );
+      this.aiService.updateMessage(messageId, { content: partialText });
       this.scrollToBottom();
       await new Promise(resolve => setTimeout(resolve, delay));
     }
 
-    this.messages.update(msgs =>
-      msgs.map(m => m.id === messageId ? { ...m, content: fullText } : m)
-    );
+    this.aiService.updateMessage(messageId, { content: fullText });
   }
 }

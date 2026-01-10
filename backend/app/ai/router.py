@@ -21,8 +21,19 @@ RULES:
 2. OFF-TOPIC: If user asks anything unrelated to tasks/goals/productivity (poems, trivia, coding, etc.), reply ONLY with: "I'm Lufy, your task assistant! I can help you create tasks, organize goals, and plan your day. What would you like to get done?"
 3. For task creation, suggest: "Just tell me what you need to do, like 'buy milk, call mom tomorrow'."
 
+{conversation_history}
 User: {message}
 Lufy:"""
+
+
+def format_history(history: list | None) -> str:
+    if not history:
+        return ""
+    lines = ["Recent conversation:"]
+    for msg in history[-5:]:
+        role = "User" if msg.get("role") == "user" else "Lufy"
+        lines.append(f"{role}: {msg.get('content', '')}")
+    return "\n".join(lines)
 
 
 def process_message(
@@ -30,7 +41,8 @@ def process_message(
     user_id: str,
     db: Session,
     client_date: str | None = None,
-    custom_instructions: str | None = None
+    custom_instructions: str | None = None,
+    history: list | None = None
 ) -> dict:
     """
     Main entry point for processing AI chat messages.
@@ -41,7 +53,7 @@ def process_message(
     if classification.intent == Intent.MAGIC_CAPTURE:
         return handle_magic_capture(message, user_id, db, client_date)
     else:
-        return handle_general_chat(message, user_id, db, custom_instructions)
+        return handle_general_chat(message, user_id, db, custom_instructions, history)
 
 
 def handle_magic_capture(
@@ -97,13 +109,16 @@ def handle_general_chat(
     message: str,
     user_id: str,
     db: Session,
-    custom_instructions: str | None
+    custom_instructions: str | None,
+    history: list | None = None
 ) -> dict:
     user_context = build_user_context(db, user_id)
 
     instructions_block = ""
     if custom_instructions:
         instructions_block = f"Custom user instructions: {custom_instructions}"
+
+    conversation_history = format_history(history)
 
     llm = get_llm(temperature=0.5)
     parser = StrOutputParser()
@@ -114,7 +129,8 @@ def handle_general_chat(
     response = chain.invoke({
         "message": message,
         "user_context": user_context,
-        "custom_instructions": instructions_block
+        "custom_instructions": instructions_block,
+        "conversation_history": conversation_history
     })
 
     return {

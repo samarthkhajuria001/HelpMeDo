@@ -11,6 +11,24 @@ import {
 } from '../models';
 import { firstValueFrom } from 'rxjs';
 
+export interface DisplayMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  actions?: ParsedTask[];
+  actionType?: string;
+}
+
+const WELCOME_MESSAGE: DisplayMessage = {
+  id: 'welcome',
+  role: 'assistant',
+  content: "Hi! I'm Lufy, your task assistant. Tell me what you need to do, like 'buy milk, call mom tomorrow, fix bike'.",
+  timestamp: new Date()
+};
+
+const MAX_UI_MESSAGES = 15;
+
 @Injectable({ providedIn: 'root' })
 export class AiService {
   private http = inject(HttpClient);
@@ -19,6 +37,22 @@ export class AiService {
   loading = signal(false);
   error = signal<string | null>(null);
   sessionId = signal<string | null>(null);
+  historyLoaded = signal(false);
+
+  messages = signal<DisplayMessage[]>([WELCOME_MESSAGE]);
+
+  addMessage(message: DisplayMessage): void {
+    this.messages.update(msgs => {
+      const updated = [...msgs, message];
+      return updated.slice(-MAX_UI_MESSAGES);
+    });
+  }
+
+  updateMessage(id: string, updates: Partial<DisplayMessage>): void {
+    this.messages.update(msgs =>
+      msgs.map(m => m.id === id ? { ...m, ...updates } : m)
+    );
+  }
 
   private getClientDate(): string {
     const now = new Date();
@@ -32,10 +66,16 @@ export class AiService {
     this.loading.set(true);
     this.error.set(null);
 
+    const recentMessages = this.messages()
+      .filter(m => m.id !== 'welcome')
+      .slice(-5)
+      .map(m => ({ role: m.role, content: m.content }));
+
     const request: ChatRequest = {
       message,
       session_id: this.sessionId() || undefined,
-      client_date: this.getClientDate()
+      client_date: this.getClientDate(),
+      history: recentMessages.length > 0 ? recentMessages : undefined
     };
 
     try {
@@ -104,7 +144,33 @@ export class AiService {
     }
   }
 
+  async loadHistory(): Promise<void> {
+    if (this.historyLoaded()) return;
+
+    try {
+      const history = await this.getHistory(undefined, 15);
+
+      if (history.length > 0) {
+        const displayMessages: DisplayMessage[] = history.map(msg => ({
+          id: msg.id,
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+          timestamp: new Date(msg.created_at),
+          actions: msg.message_metadata?.['actions'] as ParsedTask[] | undefined,
+          actionType: msg.message_metadata?.['action_type'] as string | undefined
+        }));
+        this.messages.set(displayMessages);
+      }
+
+      this.historyLoaded.set(true);
+    } catch {
+      this.historyLoaded.set(true);
+    }
+  }
+
   clearSession(): void {
     this.sessionId.set(null);
+    this.messages.set([WELCOME_MESSAGE]);
+    this.historyLoaded.set(false);
   }
 }

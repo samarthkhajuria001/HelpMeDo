@@ -29,10 +29,16 @@ class MagicCaptureOutput(BaseModel):
     message: str
 
 
+class ChatHistoryItem(BaseModel):
+    role: str
+    content: str
+
+
 class ChatRequest(BaseModel):
     message: str
     session_id: Optional[str] = None
     client_date: Optional[str] = None
+    history: Optional[list[ChatHistoryItem]] = None
 
 
 class ChatResponse(BaseModel):
