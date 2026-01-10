@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from app.models import Goal, Task
+from app.models.task import Status, TimeHorizon
 
 
 def get_user_goals(db: Session, user_id: str) -> list[Goal]:
@@ -32,3 +34,60 @@ def build_user_context(db: Session, user_id: str) -> str:
         return "User has no goals or tasks yet."
 
     return "\n".join(context_parts)
+
+
+def get_today_tasks(db: Session, user_id: str) -> list[Task]:
+    """Get user's pending tasks for today."""
+    return db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == Status.pending,
+        Task.time_horizon == TimeHorizon.today
+    ).all()
+
+
+def get_week_tasks(db: Session, user_id: str) -> list[Task]:
+    """Get user's pending tasks for this week."""
+    return db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == Status.pending,
+        Task.time_horizon == TimeHorizon.week
+    ).all()
+
+
+def get_completed_in_range(
+    db: Session,
+    user_id: str,
+    start_date: datetime,
+    end_date: datetime
+) -> list[Task]:
+    """Get tasks completed within a date range."""
+    return db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == Status.completed,
+        Task.completed_at >= start_date,
+        Task.completed_at <= end_date
+    ).all()
+
+
+def get_stuck_tasks(db: Session, user_id: str, min_moves: int = 3) -> list[Task]:
+    """Get pending tasks that have been moved multiple times."""
+    return db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == Status.pending,
+        Task.move_count >= min_moves
+    ).all()
+
+
+def format_tasks_for_prompt(tasks: list[Task], goals: list[Goal]) -> str:
+    """Format tasks list for LLM prompt."""
+    if not tasks:
+        return "No tasks"
+
+    goal_map = {g.id: g.name for g in goals}
+    lines = []
+    for t in tasks:
+        goal_name = goal_map.get(t.goal_id, "No goal")
+        pom = t.estimated_pomodoros or 1
+        due = f", due: {t.due_date}" if t.due_date else ""
+        lines.append(f"- {t.title} ({t.priority.value} priority, {pom} pom, {goal_name}{due})")
+    return "\n".join(lines)
