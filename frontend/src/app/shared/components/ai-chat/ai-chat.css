@@ -243,3 +243,136 @@
 .messages-area::-webkit-scrollbar-thumb:hover {
   background-color: var(--text-tertiary);
 }
+
+/* Action Preview */
+.action-preview {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 8px;
+  animation: messageSlide 0.3s ease-out;
+}
+
+.preview-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.task-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.task-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.task-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.priority-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.priority-high {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.priority-medium {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.priority-low {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.task-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.meta-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.goal-tag {
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-create {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+  color: white;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-create:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.btn-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-cancel {
+  padding: 10px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--text-tertiary);
+}
+
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

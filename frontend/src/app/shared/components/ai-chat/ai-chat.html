@@ -58,6 +58,55 @@
         </div>
       </div>
     }
+
+    <!-- Task Preview Cards -->
+    @if (hasPendingActions()) {
+      <div class="action-preview">
+        <div class="preview-cards">
+          @for (task of pendingActions(); track task.title) {
+            <div class="task-card">
+              <div class="task-card-header">
+                <span class="task-title">{{ task.title }}</span>
+                <span class="priority-badge" [class]="getPriorityClass(task.priority)">
+                  {{ task.priority }}
+                </span>
+              </div>
+              <div class="task-card-meta">
+                @if (task.due_date) {
+                  <span class="meta-item">{{ formatDueDate(task.due_date) }}</span>
+                }
+                @if (task.goal_name) {
+                  <span class="meta-item goal-tag">{{ task.goal_name }}</span>
+                }
+                @if (!task.due_date && !task.goal_name) {
+                  <span class="meta-item">{{ task.time_horizon }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <div class="action-buttons">
+          <button
+            class="btn-create"
+            (click)="executeActions()"
+            [disabled]="isExecuting()"
+          >
+            @if (isExecuting()) {
+              Creating...
+            } @else {
+              Create All
+            }
+          </button>
+          <button
+            class="btn-cancel"
+            (click)="cancelActions()"
+            [disabled]="isExecuting()"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    }
   </div>
 
   <!-- Input Area -->
@@ -70,11 +119,12 @@
         (keydown)="onKeydown($event)"
         placeholder="Ask me anything..."
         rows="1"
+        [disabled]="hasPendingActions()"
       ></textarea>
       <button
         class="send-button"
         (click)="sendMessage()"
-        [disabled]="!inputMessage().trim() || isTyping()"
+        [disabled]="!inputMessage().trim() || isTyping() || hasPendingActions()"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>

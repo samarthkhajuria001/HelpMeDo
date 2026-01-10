@@ -2,6 +2,11 @@ from sqlalchemy.orm import Session
 from app.models import Goal, Task
 
 
+def get_user_goals(db: Session, user_id: str) -> list[Goal]:
+    """Get user's active (non-archived) goals."""
+    return db.query(Goal).filter(Goal.user_id == user_id, Goal.archived == False).all()
+
+
 def build_user_context(db: Session, user_id: str) -> str:
     """Build context string with user's goals and tasks for LLM."""
     goals = db.query(Goal).filter(Goal.user_id == user_id, Goal.archived == False).all()

@@ -1,15 +1,14 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date, time
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from langchain_core.messages import HumanMessage, SystemMessage
 
 from app.database import get_db
 from app.utils.dependencies import get_current_user
-from app.models import User, ChatMessage
-from app.schemas.ai import ChatRequest, ChatResponse
-from app.ai.config import get_llm
-from app.ai.context import build_user_context
+from app.models import User, ChatMessage, Task, Goal
+from app.models.task import Priority, Status, TimeHorizon
+from app.schemas.ai import ChatRequest, ChatResponse, ExecuteRequest, ExecuteResponse
+from app.ai.router import process_message
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
@@ -23,37 +22,19 @@ async def chat(
     """Send a message to the AI assistant."""
     session_id = request.session_id or str(uuid.uuid4())
 
-    # Build user context
-    user_context = build_user_context(db, current_user.id)
-
-    # Get agent instructions from user settings
-    agent_instructions = current_user.settings.get("agent_instructions", "")
-
-    # Build system prompt
-    system_prompt = f"""You are a helpful task management assistant for HelpMeDo app.
-You help users organize their tasks, set priorities, and achieve their goals.
-
-{f"User's custom instructions: {agent_instructions}" if agent_instructions else ""}
-
-Current user context:
-{user_context}
-
-Be concise and helpful. Focus on actionable advice."""
-
-    # Get LLM and generate response
-    llm = get_llm()
-    messages = [
-        SystemMessage(content=system_prompt),
-        HumanMessage(content=request.message)
-    ]
+    custom_instructions = current_user.settings.get("agent_instructions", "")
 
     try:
-        response = llm.invoke(messages)
-        ai_message = response.content
+        result = process_message(
+            message=request.message,
+            user_id=current_user.id,
+            db=db,
+            client_date=request.client_date,
+            custom_instructions=custom_instructions
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")
 
-    # Save user message
     user_msg = ChatMessage(
         user_id=current_user.id,
         session_id=session_id,
@@ -64,23 +45,115 @@ Be concise and helpful. Focus on actionable advice."""
     )
     db.add(user_msg)
 
-    # Save assistant message
+    metadata = {}
+    if result.get("actions"):
+        metadata["actions"] = result["actions"]
+        metadata["action_type"] = result["action_type"]
+
     assistant_msg = ChatMessage(
         user_id=current_user.id,
         session_id=session_id,
         role="assistant",
-        content=ai_message,
-        message_metadata={},
+        content=result["message"],
+        message_metadata=metadata,
         created_at=datetime.now(timezone.utc)
     )
     db.add(assistant_msg)
     db.commit()
 
     return ChatResponse(
-        message=ai_message,
+        message=result["message"],
         session_id=session_id,
-        message_metadata={}
+        message_metadata=metadata if metadata else None,
+        actions=result.get("actions"),
+        action_type=result.get("action_type")
     )
+
+
+@router.post("/execute", response_model=ExecuteResponse)
+async def execute_action(
+    request: ExecuteRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Execute confirmed AI actions (e.g., create tasks)."""
+    if request.action_type != "create_tasks":
+        raise HTTPException(status_code=400, detail=f"Unknown action_type: {request.action_type}")
+
+    created_ids = []
+    errors = []
+
+    for i, task_data in enumerate(request.data):
+        try:
+            if task_data.goal_id:
+                goal = db.query(Goal).filter(
+                    Goal.id == task_data.goal_id,
+                    Goal.user_id == current_user.id
+                ).first()
+                if not goal:
+                    errors.append(f"Task {i+1}: Invalid goal")
+                    continue
+
+            due_date_parsed = None
+            if task_data.due_date:
+                try:
+                    due_date_parsed = date.fromisoformat(task_data.due_date)
+                except ValueError:
+                    pass
+
+            due_time_parsed = None
+            if task_data.due_time:
+                try:
+                    due_time_parsed = time.fromisoformat(task_data.due_time)
+                except ValueError:
+                    pass
+
+            task = Task(
+                user_id=current_user.id,
+                goal_id=task_data.goal_id,
+                title=task_data.title,
+                description=task_data.description or "",
+                priority=Priority(task_data.priority),
+                time_horizon=TimeHorizon(task_data.time_horizon),
+                due_date=due_date_parsed,
+                due_time=due_time_parsed,
+                status=Status.pending,
+                source="ai_magic_capture",
+                generated_by_agent=True,
+                agent_notes=f"Created via Magic Capture"
+            )
+            db.add(task)
+            db.flush()
+            created_ids.append(str(task.id))
+
+        except Exception as e:
+            errors.append(f"Task {i+1}: {str(e)}")
+
+    db.commit()
+
+    total = len(request.data)
+    created_count = len(created_ids)
+
+    if created_count == 0 and errors:
+        return ExecuteResponse(
+            success=False,
+            message="Failed to create tasks",
+            errors=errors
+        )
+    elif created_count < total:
+        return ExecuteResponse(
+            success=False,
+            message=f"Created {created_count} of {total} tasks",
+            created_ids=created_ids,
+            errors=errors
+        )
+    else:
+        msg = f"Created {created_count} task" if created_count == 1 else f"Created {created_count} tasks"
+        return ExecuteResponse(
+            success=True,
+            message=msg,
+            created_ids=created_ids
+        )
 
 
 @router.get("/history")
