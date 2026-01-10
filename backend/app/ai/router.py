@@ -5,6 +5,7 @@ from app.ai.config import get_llm
 from app.ai.context import build_user_context, get_user_goals
 from app.ai.chains.intent_router import classify_intent
 from app.ai.chains.magic_capture import parse_tasks, calculate_time_horizon
+from app.ai.chains.librarian import answer_question
 from app.schemas.ai import Intent
 from datetime import datetime
 
@@ -52,6 +53,8 @@ def process_message(
 
     if classification.intent == Intent.MAGIC_CAPTURE:
         return handle_magic_capture(message, user_id, db, client_date)
+    elif classification.intent == Intent.LIBRARIAN:
+        return answer_question(message, user_id, db, client_date)
     else:
         return handle_general_chat(message, user_id, db, custom_instructions, history)
 
