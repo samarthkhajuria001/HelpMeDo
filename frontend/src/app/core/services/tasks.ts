@@ -186,6 +186,19 @@ export class Tasks {
     this.error.set(null);
   }
 
+  async reloadCurrentView(): Promise<void> {
+    const horizon = this.currentHorizon();
+    const goalId = this.currentGoalId();
+
+    if (goalId) {
+      await this.loadTasks(undefined, goalId);
+    } else if (horizon) {
+      await this.loadTasks(horizon);
+    }
+    this.loadCounts();
+    this.tasksVersion.update(v => v + 1);
+  }
+
   async loadCompletedTasks(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);

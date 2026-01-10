@@ -127,12 +127,12 @@ export class AIChat implements AfterViewInit {
       if (response.success) {
         this.pendingActions.set([]);
         this.pendingActionType.set(null);
-        this.tasksService.loadCounts();
+        this.tasksService.reloadCurrentView();
       } else if (response.created_ids && response.created_ids.length > 0) {
         const createdCount = response.created_ids.length;
         const remainingActions = actions.slice(createdCount);
         this.pendingActions.set(remainingActions);
-        this.tasksService.loadCounts();
+        this.tasksService.reloadCurrentView();
       }
 
     } catch {
