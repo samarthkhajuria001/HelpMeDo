@@ -172,6 +172,12 @@ async def update_task(
         if not goal:
             raise HTTPException(status_code=400, detail="Invalid goal_id")
 
+    # Increment move_count when time_horizon changes
+    if "time_horizon" in update_data:
+        new_horizon = TimeHorizon(update_data["time_horizon"])
+        if task.time_horizon != new_horizon:
+            task.move_count = (task.move_count or 0) + 1
+
     for key, value in update_data.items():
         setattr(task, key, value)
 

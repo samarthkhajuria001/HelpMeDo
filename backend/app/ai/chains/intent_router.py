@@ -23,6 +23,18 @@ SMART_REVIEW: User wants a summary of their progress or accomplishments.
 Signs: Review, summary, how did I do, progress, accomplishments
 Examples: "how did I do this week?", "weekly review", "show my progress", "summarize my week"
 
+STUCK_BREAKER: User wants help breaking down a large or stuck task into subtasks.
+Signs: "break down", "stuck", "too big", "subtasks", "smaller steps", "split"
+Examples: "help me break down this task", "I'm stuck on my project", "can you split this into subtasks?"
+
+GOAL_AUDIT: User wants to check on neglected or stale goals.
+Signs: "neglected goals", "forgotten goals", "goal check", "stale goals", "abandoned"
+Examples: "any neglected goals?", "check on my goals", "which goals need attention?"
+
+SUNDAY_GARDENER: User wants help cleaning up, organizing, or maintaining their task list.
+Signs: "clean up", "organize", "gardening", "tidy", "maintenance", "overdue tasks"
+Examples: "help me clean up my tasks", "task maintenance", "sunday gardening", "organize my list"
+
 GENERAL_CHAT: Greetings, thanks, questions about the app, or unclear intent.
 Signs: Greetings, thanks, questions about the app, unclear intent, single words without action context
 Examples: "hello", "thanks!", "what can you do?", "hi there", "help"
@@ -30,7 +42,7 @@ Examples: "hello", "thanks!", "what can you do?", "hi there", "help"
 User message: {message}
 
 Respond with valid JSON only:
-{{"intent": "magic_capture" | "librarian" | "reality_check" | "smart_review" | "general_chat", "confidence": 0.0 to 1.0, "reasoning": "brief explanation"}}"""
+{{"intent": "magic_capture" | "librarian" | "reality_check" | "smart_review" | "stuck_breaker" | "goal_audit" | "sunday_gardener" | "general_chat", "confidence": 0.0 to 1.0, "reasoning": "brief explanation"}}"""
 
 
 def classify_intent(message: str) -> IntentClassification:

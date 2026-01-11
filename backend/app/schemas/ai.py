@@ -10,6 +10,9 @@ class Intent(str, Enum):
     LIBRARIAN = "librarian"
     REALITY_CHECK = "reality_check"
     SMART_REVIEW = "smart_review"
+    STUCK_BREAKER = "stuck_breaker"
+    GOAL_AUDIT = "goal_audit"
+    SUNDAY_GARDENER = "sunday_gardener"
 
 
 class IntentClassification(BaseModel):
