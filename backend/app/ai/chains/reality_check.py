@@ -71,7 +71,7 @@ def calculate_workload(tasks: list, user_settings: dict) -> dict:
 
 
 def analyze_workload(
-    message: str,
+    _message: str,
     user_id: str,
     db: Session,
     client_date: str | None = None

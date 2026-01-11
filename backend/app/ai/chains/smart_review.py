@@ -34,7 +34,7 @@ Generate the weekly review:"""
 
 
 def generate_review(
-    message: str,
+    _message: str,
     user_id: str,
     db: Session,
     client_date: str | None = None
