@@ -15,3 +15,40 @@ def get_llm(model: str = "gpt-5-nano", temperature: float = 0.25):
         temperature=temperature,
         api_key=settings.OPENAI_API_KEY
     )
+
+
+_redis_client = None
+
+
+def get_redis_client():
+    """Get or create Redis client singleton."""
+    global _redis_client
+    if _redis_client is None:
+        import redis
+        _redis_client = redis.from_url(settings.REDIS_URL)
+    return _redis_client
+
+
+_checkpointer = None
+
+
+def get_checkpointer():
+    """Get or create LangGraph Redis checkpointer singleton."""
+    global _checkpointer
+    if _checkpointer is None:
+        from langgraph.checkpoint.redis import RedisSaver
+        _checkpointer = RedisSaver(get_redis_client())
+    return _checkpointer
+
+
+def clear_graph_state(session_id: str) -> bool:
+    """Clear LangGraph state for a session. Returns True if cleared."""
+    try:
+        client = get_redis_client()
+        pattern = f"*{session_id}*"
+        keys = client.keys(pattern)
+        if keys:
+            client.delete(*keys)
+        return True
+    except Exception:
+        return False
