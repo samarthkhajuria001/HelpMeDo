@@ -8,6 +8,7 @@ from app.ai.chains.magic_capture import parse_tasks, calculate_time_horizon
 from app.ai.chains.librarian import answer_question
 from app.ai.chains.reality_check import analyze_workload
 from app.ai.chains.smart_review import generate_review
+from app.ai.chains.stuck_breaker import break_down_task
 from app.schemas.ai import Intent
 from datetime import datetime
 
@@ -23,6 +24,9 @@ RULES:
 1. CRITICAL: Never exceed 150 words. Be concise and direct.
 2. OFF-TOPIC: If user asks anything unrelated to tasks/goals/productivity (poems, trivia, coding, etc.), reply ONLY with: "I'm Lufy, your task assistant! I can help you create tasks, organize goals, and plan your day. What would you like to get done?"
 3. For task creation, suggest: "Just tell me what you need to do, like 'buy milk, call mom tomorrow'."
+4. NEVER say "Done", "I've created", "I've added", or claim you performed any action. You CANNOT modify tasks or create subtasks in this mode.
+5. If user asks to break down a task, tell them: "Say 'break down [task name]' and I'll help you create subtasks for it."
+6. If user says "ok", "do it", "yes" or similar confirmation without context, ask what they'd like help with.
 
 {conversation_history}
 User: {message}
@@ -61,6 +65,8 @@ def process_message(
         return analyze_workload(message, user_id, db, client_date)
     elif classification.intent == Intent.SMART_REVIEW:
         return generate_review(message, user_id, db, client_date)
+    elif classification.intent == Intent.STUCK_BREAKER:
+        return break_down_task(message, user_id, db, client_date)
     else:
         return handle_general_chat(message, user_id, db, custom_instructions, history)
 

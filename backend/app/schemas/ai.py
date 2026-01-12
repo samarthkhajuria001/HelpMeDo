@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Any, Literal
+from typing import Optional, Any, Literal, Union
 from datetime import datetime
 from enum import Enum
 
@@ -51,7 +51,7 @@ class ChatResponse(BaseModel):
     message: str
     session_id: str
     message_metadata: Optional[dict[str, Any]] = None
-    actions: Optional[list[dict[str, Any]]] = None
+    actions: Optional[Union[list[dict[str, Any]], dict[str, Any]]] = None
     action_type: Optional[str] = None
 
 
@@ -78,7 +78,7 @@ class ExecuteTaskData(BaseModel):
 
 class ExecuteRequest(BaseModel):
     action_type: str
-    data: list[ExecuteTaskData]
+    data: Union[list[ExecuteTaskData], dict[str, Any]]
     session_id: Optional[str] = None
 
 

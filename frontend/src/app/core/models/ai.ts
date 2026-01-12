@@ -27,7 +27,7 @@ export interface ChatResponse {
   message: string;
   session_id: string;
   message_metadata?: Record<string, unknown>;
-  actions?: ParsedTask[];
+  actions?: ParsedTask[] | SubtaskActions;
   action_type?: string;
 }
 
@@ -43,7 +43,7 @@ export interface ExecuteTaskData {
 
 export interface ExecuteRequest {
   action_type: string;
-  data: ExecuteTaskData[];
+  data: ExecuteTaskData[] | SubtaskActions;
   session_id?: string;
 }
 
@@ -60,4 +60,15 @@ export interface ChatMessage {
   content: string;
   message_metadata: Record<string, unknown>;
   created_at: string;
+}
+
+export interface SubtaskItem {
+  title: string;
+  description?: string;
+}
+
+export interface SubtaskActions {
+  parent_task_id: string;
+  parent_task_title: string;
+  subtasks: SubtaskItem[];
 }

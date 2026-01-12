@@ -7,7 +7,8 @@ import {
   ExecuteRequest,
   ExecuteResponse,
   ParsedTask,
-  ChatMessage
+  ChatMessage,
+  SubtaskActions
 } from '../models';
 import { firstValueFrom } from 'rxjs';
 
@@ -16,7 +17,7 @@ export interface DisplayMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  actions?: ParsedTask[];
+  actions?: ParsedTask[] | SubtaskActions;
   actionType?: string;
 }
 
@@ -97,19 +98,26 @@ export class AiService {
     }
   }
 
-  async executeActions(actions: ParsedTask[], actionType: string): Promise<ExecuteResponse> {
+  async executeActions(actions: ParsedTask[] | SubtaskActions, actionType: string): Promise<ExecuteResponse> {
     this.loading.set(true);
     this.error.set(null);
 
-    const data = actions.map(task => ({
-      title: task.title,
-      description: task.description || undefined,
-      priority: task.priority,
-      time_horizon: task.time_horizon,
-      due_date: task.due_date,
-      due_time: task.due_time,
-      goal_id: task.goal_id
-    }));
+    let data: ExecuteRequest['data'];
+
+    if (actionType === 'create_subtasks') {
+      data = actions as SubtaskActions;
+    } else {
+      const taskActions = actions as ParsedTask[];
+      data = taskActions.map(task => ({
+        title: task.title,
+        description: task.description || undefined,
+        priority: task.priority,
+        time_horizon: task.time_horizon,
+        due_date: task.due_date,
+        due_time: task.due_time,
+        goal_id: task.goal_id
+      }));
+    }
 
     const request: ExecuteRequest = {
       action_type: actionType,

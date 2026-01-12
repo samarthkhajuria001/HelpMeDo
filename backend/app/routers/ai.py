@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.utils.dependencies import get_current_user
-from app.models import User, ChatMessage, Task, Goal
+from app.models import User, ChatMessage, Task, Goal, Subtask, SubtaskStatus
 from app.models.task import Priority, Status, TimeHorizon
 from app.schemas.ai import ChatRequest, ChatResponse, ExecuteRequest, ExecuteResponse
 from app.ai.router import process_message
@@ -81,8 +81,10 @@ async def execute_action(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Execute confirmed AI actions (e.g., create tasks)."""
-    if request.action_type != "create_tasks":
+    """Execute confirmed AI actions (e.g., create tasks, create subtasks)."""
+    if request.action_type == "create_subtasks":
+        return await execute_create_subtasks(request, db, current_user)
+    elif request.action_type != "create_tasks":
         raise HTTPException(status_code=400, detail=f"Unknown action_type: {request.action_type}")
 
     created_ids = []
@@ -204,3 +206,107 @@ async def get_chat_history(
         }
         for m in messages
     ]
+
+
+async def execute_create_subtasks(
+    request: ExecuteRequest,
+    db: Session,
+    current_user: User
+) -> ExecuteResponse:
+    """Create subtasks for a parent task."""
+    # Extract data from request - for subtasks, data is a dict not list
+    subtask_data = request.data if isinstance(request.data, dict) else {}
+    parent_task_id = subtask_data.get("parent_task_id")
+    subtasks = subtask_data.get("subtasks", [])
+
+    if not parent_task_id:
+        return ExecuteResponse(
+            success=False,
+            message="No parent task specified",
+            errors=["parent_task_id is required"]
+        )
+
+    # Verify parent task belongs to user
+    parent_task = db.query(Task).filter(
+        Task.id == parent_task_id,
+        Task.user_id == current_user.id
+    ).first()
+
+    if not parent_task:
+        return ExecuteResponse(
+            success=False,
+            message="Task not found",
+            errors=["Parent task not found or access denied"]
+        )
+
+    # Get current subtask count for ordering
+    existing_count = len(parent_task.subtasks) if parent_task.subtasks else 0
+
+    created_ids = []
+    created_titles = []
+    errors = []
+
+    for i, st in enumerate(subtasks):
+        try:
+            print(f"DEBUG - Processing subtask {i}: type={type(st)}, value={st}")
+            title = st.get("title", "").strip()
+            print(f"DEBUG - Got title: '{title}'")
+            if not title:
+                errors.append(f"Subtask {i+1}: Empty title")
+                continue
+
+            print(f"DEBUG - Creating subtask with task_id={parent_task_id}, title={title}")
+            subtask = Subtask(
+                task_id=parent_task_id,
+                title=title,
+                description=st.get("description", ""),
+                order=existing_count + i,
+                status=SubtaskStatus.pending,
+                generated_by_agent=True
+            )
+            db.add(subtask)
+            print(f"DEBUG - Added subtask, flushing...")
+            db.flush()
+            print(f"DEBUG - Subtask created with id={subtask.id}")
+            created_ids.append(str(subtask.id))
+            created_titles.append(title)
+
+        except Exception as e:
+            print(f"DEBUG - EXCEPTION creating subtask: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            errors.append(f"Subtask {i+1}: {str(e)}")
+
+    db.commit()
+
+    created_count = len(created_ids)
+
+    if created_count == 0:
+        return ExecuteResponse(
+            success=False,
+            message="Failed to create subtasks",
+            errors=errors if errors else ["No subtasks created"]
+        )
+
+    # Build success message
+    subtask_list = "\n".join(f"• {title}" for title in created_titles)
+    msg = f"Added {created_count} subtasks to '{parent_task.title}':\n{subtask_list}"
+
+    # Save confirmation to chat history
+    if request.session_id:
+        confirm_msg = ChatMessage(
+            user_id=current_user.id,
+            session_id=request.session_id,
+            role="assistant",
+            content=msg,
+            message_metadata={"parent_task_id": parent_task_id, "subtask_ids": created_ids},
+            created_at=datetime.now(timezone.utc)
+        )
+        db.add(confirm_msg)
+        db.commit()
+
+    return ExecuteResponse(
+        success=True,
+        message=msg,
+        created_ids=created_ids
+    )

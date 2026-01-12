@@ -62,10 +62,10 @@
     }
 
     <!-- Task Preview Cards -->
-    @if (hasPendingActions()) {
+    @if (hasPendingActions() && !isSubtaskAction()) {
       <div class="action-preview">
         <div class="preview-cards">
-          @for (task of pendingActions(); track task.title) {
+          @for (task of pendingTasks(); track task.title) {
             <div class="task-card">
               <div class="task-card-header">
                 <span class="task-title">{{ task.title }}</span>
@@ -97,6 +97,53 @@
               Creating...
             } @else {
               Create All
+            }
+          </button>
+          <button
+            class="btn-cancel"
+            (click)="cancelActions()"
+            [disabled]="isExecuting()"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Subtask Preview -->
+    @if (hasPendingActions() && isSubtaskAction() && pendingSubtasks()) {
+      <div class="action-preview subtask-preview">
+        <div class="subtask-header">
+          <span class="subtask-label">Subtasks for:</span>
+          <span class="parent-task-title">{{ pendingSubtasks()!.parent_task_title }}</span>
+        </div>
+        <div class="preview-cards">
+          @for (subtask of pendingSubtasks()!.subtasks; track subtask.title) {
+            <div class="subtask-card">
+              <div class="subtask-check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                </svg>
+              </div>
+              <div class="subtask-content">
+                <span class="subtask-title">{{ subtask.title }}</span>
+                @if (subtask.description) {
+                  <span class="subtask-description">{{ subtask.description }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        <div class="action-buttons">
+          <button
+            class="btn-create"
+            (click)="executeActions()"
+            [disabled]="isExecuting()"
+          >
+            @if (isExecuting()) {
+              Adding...
+            } @else {
+              Add Subtasks
             }
           </button>
           <button

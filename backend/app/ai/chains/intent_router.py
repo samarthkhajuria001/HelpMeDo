@@ -24,8 +24,8 @@ Signs: Review, summary, how did I do, progress, accomplishments
 Examples: "how did I do this week?", "weekly review", "show my progress", "summarize my week"
 
 STUCK_BREAKER: User wants help breaking down a large or stuck task into subtasks.
-Signs: "break down", "stuck", "too big", "subtasks", "smaller steps", "split"
-Examples: "help me break down this task", "I'm stuck on my project", "can you split this into subtasks?"
+Signs: "break down", "stuck on", "too big", "subtasks", "smaller steps", "split", "help with [task]", "how do I start", "steps for", "unblock"
+Examples: "help me break down this task", "I'm stuck on my project", "can you split this into subtasks?", "break down Clean garbage", "I'm stuck on Clean garbage", "help with the laundry task", "how do I start on my report?"
 
 GOAL_AUDIT: User wants to check on neglected or stale goals.
 Signs: "neglected goals", "forgotten goals", "goal check", "stale goals", "abandoned"

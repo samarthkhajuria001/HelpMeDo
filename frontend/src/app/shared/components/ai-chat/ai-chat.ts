@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { AiService, DisplayMessage } from '../../../core/services/ai';
 import { Tasks } from '../../../core/services/tasks';
 import { UserService } from '../../../core/services/user';
-import { ParsedTask } from '../../../core/models';
+import { ParsedTask, SubtaskActions } from '../../../core/models';
 
 @Component({
   selector: 'app-ai-chat',
@@ -31,12 +31,26 @@ export class AIChat implements AfterViewInit {
     });
   }
   isTyping = signal(false);
-  pendingActions = signal<ParsedTask[]>([]);
+  pendingActions = signal<ParsedTask[] | SubtaskActions | null>(null);
   pendingActionType = signal<string | null>(null);
   isExecuting = signal(false);
 
   hasMessages = computed(() => this.messages().length > 0);
-  hasPendingActions = computed(() => this.pendingActions().length > 0);
+  hasPendingActions = computed(() => {
+    const actions = this.pendingActions();
+    if (!actions) return false;
+    if (Array.isArray(actions)) return actions.length > 0;
+    return !!actions.subtasks?.length;
+  });
+  isSubtaskAction = computed(() => this.pendingActionType() === 'create_subtasks');
+  pendingTasks = computed(() => {
+    const actions = this.pendingActions();
+    return Array.isArray(actions) ? actions : [];
+  });
+  pendingSubtasks = computed(() => {
+    const actions = this.pendingActions();
+    return !Array.isArray(actions) && actions ? actions : null;
+  });
 
   ngAfterViewInit() {
     this.scrollToBottom();
@@ -86,10 +100,16 @@ export class AIChat implements AfterViewInit {
       this.aiService.addMessage(aiMessage);
       await this.typewriterEffect(messageId, response.message);
 
-      if (response.actions && response.actions.length > 0 && response.action_type) {
-        this.pendingActions.set(response.actions);
-        this.pendingActionType.set(response.action_type);
-        this.scrollToBottom();
+      if (response.actions && response.action_type) {
+        const hasActions = Array.isArray(response.actions)
+          ? response.actions.length > 0
+          : !!response.actions.subtasks?.length;
+
+        if (hasActions) {
+          this.pendingActions.set(response.actions);
+          this.pendingActionType.set(response.action_type);
+          this.scrollToBottom();
+        }
       }
 
     } catch {
@@ -109,7 +129,9 @@ export class AIChat implements AfterViewInit {
     const actions = this.pendingActions();
     const actionType = this.pendingActionType();
 
-    if (!actions.length || !actionType) return;
+    if (!actions || !actionType) {
+      return;
+    }
 
     this.isExecuting.set(true);
 
@@ -125,21 +147,28 @@ export class AIChat implements AfterViewInit {
       this.aiService.addMessage(resultMessage);
 
       if (response.success) {
-        this.pendingActions.set([]);
+        this.pendingActions.set(null);
         this.pendingActionType.set(null);
         this.tasksService.reloadCurrentView();
       } else if (response.created_ids && response.created_ids.length > 0) {
-        const createdCount = response.created_ids.length;
-        const remainingActions = actions.slice(createdCount);
-        this.pendingActions.set(remainingActions);
+        if (Array.isArray(actions)) {
+          const createdCount = response.created_ids.length;
+          const remainingActions = actions.slice(createdCount);
+          this.pendingActions.set(remainingActions.length > 0 ? remainingActions : null);
+        } else {
+          this.pendingActions.set(null);
+        }
+        this.pendingActionType.set(null);
         this.tasksService.reloadCurrentView();
       }
 
-    } catch {
+    } catch (err) {
       const errorMessage: DisplayMessage = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: "Failed to create tasks. Please try again.",
+        content: actionType === 'create_subtasks'
+          ? "Failed to create subtasks. Please try again."
+          : "Failed to create tasks. Please try again.",
         timestamp: new Date()
       };
       this.aiService.addMessage(errorMessage);
@@ -150,7 +179,7 @@ export class AIChat implements AfterViewInit {
   }
 
   cancelActions(): void {
-    this.pendingActions.set([]);
+    this.pendingActions.set(null);
     this.pendingActionType.set(null);
 
     const cancelMessage: DisplayMessage = {

@@ -91,3 +91,36 @@ def format_tasks_for_prompt(tasks: list[Task], goals: list[Goal]) -> str:
         due = f", due: {t.due_date}" if t.due_date else ""
         lines.append(f"- {t.title} ({t.priority.value} priority, {pom} pom, {goal_name}{due})")
     return "\n".join(lines)
+
+
+def get_pending_tasks(db: Session, user_id: str) -> list[Task]:
+    """Get all pending tasks for a user."""
+    return db.query(Task).filter(
+        Task.user_id == user_id,
+        Task.status == Status.pending
+    ).all()
+
+
+def find_task_to_break_down(message: str, tasks: list[Task]) -> Task | None:
+    """Find a task to break down based on user message or stuck status."""
+    message_lower = message.lower()
+
+    # First, check if a specific task is mentioned
+    for task in tasks:
+        if task.title.lower() in message_lower:
+            return task
+
+    # Check for partial matches (task title words in message)
+    for task in tasks:
+        title_words = task.title.lower().split()
+        if len(title_words) >= 2:
+            matches = sum(1 for word in title_words if word in message_lower)
+            if matches >= 2:
+                return task
+
+    # Fall back to most stuck task
+    stuck = [t for t in tasks if (t.move_count or 0) >= 3]
+    if stuck:
+        return max(stuck, key=lambda t: t.move_count or 0)
+
+    return None
