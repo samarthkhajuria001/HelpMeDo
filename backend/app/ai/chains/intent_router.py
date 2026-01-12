@@ -7,9 +7,15 @@ from app.schemas.ai import Intent, IntentClassification
 INTENT_CLASSIFICATION_PROMPT = """You are an intent classifier for a task management app.
 Classify the user's message into one of these intents:
 
-MAGIC_CAPTURE: User wants to create one or more tasks from natural language.
-Signs: Contains action items, comma-separated tasks, "add", "create", "remind me", "todo"
+MAGIC_CAPTURE: User wants to create one or more CONCRETE, ACTIONABLE tasks.
+Signs: Contains specific action items, comma-separated tasks, "add", "create", "remind me", "todo"
 Examples: "buy milk, fix bike", "add call mom to my list", "remind me to pay rent", "todo: finish report"
+NOT deep_plan: These are simple tasks that don't need planning or breakdown.
+
+DEEP_PLAN: User wants to achieve a complex GOAL that requires multi-step planning.
+Signs: Abstract goals, learning objectives, "I want to learn/achieve/master", "plan my...", "prepare for...", long-term aspirations, skill acquisition
+Examples: "I want to learn Japanese", "plan my marathon training", "help me prepare for GMAT", "I want to get fit in 3 months", "plan a trip to Japan"
+NOT magic_capture: These are goals/aspirations, not concrete tasks. They need to be broken into a structured plan.
 
 LIBRARIAN: User is asking a question about their existing tasks or goals.
 Signs: Question words (when, what, where, which, how many), searching for specific info
@@ -42,7 +48,7 @@ Examples: "hello", "thanks!", "what can you do?", "hi there", "help"
 User message: {message}
 
 Respond with valid JSON only:
-{{"intent": "magic_capture" | "librarian" | "reality_check" | "smart_review" | "stuck_breaker" | "goal_audit" | "sunday_gardener" | "general_chat", "confidence": 0.0 to 1.0, "reasoning": "brief explanation"}}"""
+{{"intent": "magic_capture" | "deep_plan" | "librarian" | "reality_check" | "smart_review" | "stuck_breaker" | "goal_audit" | "sunday_gardener" | "general_chat", "confidence": 0.0 to 1.0, "reasoning": "brief explanation"}}"""
 
 
 def classify_intent(message: str) -> IntentClassification:
