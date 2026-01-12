@@ -10,6 +10,11 @@ from app.ai.graphs.nodes import (
     refine_plan,
     prepare_final,
 )
+from app.ai.graphs.deep_plan import (
+    build_deep_plan_graph,
+    get_compiled_graph,
+    get_deep_plan_graph,
+)
 
 __all__ = [
     "DeepPlanState",
@@ -20,4 +25,7 @@ __all__ = [
     "generate_plan",
     "refine_plan",
     "prepare_final",
+    "build_deep_plan_graph",
+    "get_compiled_graph",
+    "get_deep_plan_graph",
 ]
