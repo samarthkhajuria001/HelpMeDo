@@ -16,6 +16,7 @@ langchain
 langchain-openai
 langchain-core
 langgraph
+langgraph-checkpoint-redis
 langsmith
 redis
 dateparser

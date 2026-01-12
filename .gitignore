@@ -207,6 +207,9 @@ marimo/_lsp/
 __marimo__/
 helpme.db
 
+# Redis
+dump.rdb
+
 # Angular / Node.js
 node_modules/
 dist/

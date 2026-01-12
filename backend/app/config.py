@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     LANGCHAIN_TRACING_V2: bool = True
     LANGCHAIN_PROJECT: str = "helpme-ai-poc"
 
+    # Redis for LangGraph state persistence
+    REDIS_URL: str = "redis://localhost:6379"
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]

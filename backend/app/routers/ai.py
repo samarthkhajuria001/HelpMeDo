@@ -248,14 +248,11 @@ async def execute_create_subtasks(
 
     for i, st in enumerate(subtasks):
         try:
-            print(f"DEBUG - Processing subtask {i}: type={type(st)}, value={st}")
             title = st.get("title", "").strip()
-            print(f"DEBUG - Got title: '{title}'")
             if not title:
                 errors.append(f"Subtask {i+1}: Empty title")
                 continue
 
-            print(f"DEBUG - Creating subtask with task_id={parent_task_id}, title={title}")
             subtask = Subtask(
                 task_id=parent_task_id,
                 title=title,
@@ -265,16 +262,11 @@ async def execute_create_subtasks(
                 generated_by_agent=True
             )
             db.add(subtask)
-            print(f"DEBUG - Added subtask, flushing...")
             db.flush()
-            print(f"DEBUG - Subtask created with id={subtask.id}")
             created_ids.append(str(subtask.id))
             created_titles.append(title)
 
         except Exception as e:
-            print(f"DEBUG - EXCEPTION creating subtask: {type(e).__name__}: {e}")
-            import traceback
-            traceback.print_exc()
             errors.append(f"Subtask {i+1}: {str(e)}")
 
     db.commit()
