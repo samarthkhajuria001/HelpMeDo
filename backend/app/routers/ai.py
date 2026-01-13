@@ -1,5 +1,6 @@
+import re
 import uuid
-from datetime import datetime, timezone, date, time
+from datetime import datetime, timezone, date, time, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -9,6 +10,7 @@ from app.models import User, ChatMessage, Task, Goal, Subtask, SubtaskStatus
 from app.models.task import Priority, Status, TimeHorizon
 from app.schemas.ai import ChatRequest, ChatResponse, ExecuteRequest, ExecuteResponse
 from app.ai.router import process_message
+from app.ai.config import clear_graph_state
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
@@ -82,8 +84,10 @@ async def execute_action(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Execute confirmed AI actions (e.g., create tasks, create subtasks)."""
-    if request.action_type == "create_subtasks":
+    """Execute confirmed AI actions (e.g., create tasks, create subtasks, create goal plan)."""
+    if request.action_type == "create_goal_plan":
+        return await execute_create_goal_plan(request, db, current_user)
+    elif request.action_type == "create_subtasks":
         return await execute_create_subtasks(request, db, current_user)
     elif request.action_type != "create_tasks":
         raise HTTPException(status_code=400, detail=f"Unknown action_type: {request.action_type}")
@@ -303,3 +307,131 @@ async def execute_create_subtasks(
         message=msg,
         created_ids=created_ids
     )
+
+
+async def execute_create_goal_plan(
+    request: ExecuteRequest,
+    db: Session,
+    current_user: User
+) -> ExecuteResponse:
+    """Create a goal with all its associated tasks from a deep plan."""
+    plan_data = request.data
+
+    if not isinstance(plan_data, dict):
+        return ExecuteResponse(
+            success=False,
+            message="Invalid plan data format",
+            errors=["Expected dict with goal and tasks"]
+        )
+
+    try:
+        goal = Goal(
+            user_id=current_user.id,
+            name=plan_data.get("goal_title", "Untitled Goal"),
+            description=plan_data.get("goal_description", ""),
+            color=plan_data.get("goal_color", "#6B7280"),
+            archived=False
+        )
+        db.add(goal)
+        db.flush()
+
+        goal_id = str(goal.id)
+        created_task_ids = []
+        created_titles = []
+        errors = []
+
+        tasks = plan_data.get("tasks", [])
+        for i, task_data in enumerate(tasks):
+            try:
+                due_date_val = calculate_due_date_from_week(task_data.get("week_range"))
+
+                priority_str = task_data.get("priority", "medium")
+                try:
+                    priority = Priority(priority_str)
+                except ValueError:
+                    priority = Priority.medium
+
+                task = Task(
+                    user_id=current_user.id,
+                    goal_id=goal.id,
+                    title=task_data.get("title", f"Task {i+1}"),
+                    description=task_data.get("description", ""),
+                    priority=priority,
+                    time_horizon=TimeHorizon.week,
+                    due_date=due_date_val,
+                    status=Status.pending,
+                    source="ai_deep_plan",
+                    generated_by_agent=True,
+                    agent_notes=f"Part of plan: {plan_data.get('goal_title', 'Unknown')}"
+                )
+                db.add(task)
+                db.flush()
+                created_task_ids.append(str(task.id))
+                created_titles.append(task.title)
+
+            except Exception as e:
+                errors.append(f"Task {i+1}: {str(e)}")
+
+        db.commit()
+
+        task_count = len(created_task_ids)
+
+        if task_count == 0:
+            db.rollback()
+            return ExecuteResponse(
+                success=False,
+                message="Failed to create tasks for the plan",
+                errors=errors if errors else ["No tasks created"]
+            )
+
+        if request.session_id:
+            clear_graph_state(request.session_id)
+
+        task_list = "\n".join(f"• {title}" for title in created_titles[:5])
+        if task_count > 5:
+            task_list += f"\n• ...and {task_count - 5} more"
+
+        msg = f"Created goal '{goal.name}' with {task_count} tasks:\n{task_list}"
+
+        if request.session_id:
+            confirm_msg = ChatMessage(
+                user_id=current_user.id,
+                session_id=request.session_id,
+                role="assistant",
+                content=msg,
+                message_metadata={"goal_id": goal_id, "task_ids": created_task_ids},
+                created_at=datetime.now(timezone.utc)
+            )
+            db.add(confirm_msg)
+            db.commit()
+
+        return ExecuteResponse(
+            success=True,
+            message=msg,
+            created_ids=[goal_id] + created_task_ids
+        )
+
+    except Exception as e:
+        db.rollback()
+        return ExecuteResponse(
+            success=False,
+            message=f"Failed to create plan: {str(e)}",
+            errors=[str(e)]
+        )
+
+
+def calculate_due_date_from_week(week_range: str | None) -> date | None:
+    """Convert 'Week 1-2' or 'Week 5-8' to an actual due date (end of range)."""
+    if not week_range:
+        return None
+
+    match = re.search(r'Week\s*(\d+)(?:\s*-\s*(\d+))?', week_range, re.IGNORECASE)
+    if not match:
+        return None
+
+    start_week = int(match.group(1))
+    end_week = int(match.group(2)) if match.group(2) else start_week
+
+    today = date.today()
+    days_to_add = end_week * 7
+    return today + timedelta(days=days_to_add)
