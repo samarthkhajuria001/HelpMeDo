@@ -2,6 +2,7 @@ import { Component, signal, computed, ElementRef, ViewChild, AfterViewInit, inje
 import { FormsModule } from '@angular/forms';
 import { AiService, DisplayMessage } from '../../../core/services/ai';
 import { Tasks } from '../../../core/services/tasks';
+import { Goals } from '../../../core/services/goals';
 import { UserService } from '../../../core/services/user';
 import { ParsedTask, SubtaskActions, GoalPlan, GOAL_COLORS, GoalColor } from '../../../core/models';
 
@@ -17,6 +18,7 @@ export class AIChat implements AfterViewInit {
 
   private aiService = inject(AiService);
   private tasksService = inject(Tasks);
+  private goalsService = inject(Goals);
   private userService = inject(UserService);
 
   userPicture = computed(() => this.userService.user()?.picture || null);
@@ -163,6 +165,7 @@ export class AIChat implements AfterViewInit {
         this.pendingActions.set(null);
         this.pendingActionType.set(null);
         this.tasksService.reloadCurrentView();
+        this.goalsService.loadGoals();
       } else if (response.created_ids && response.created_ids.length > 0) {
         if (Array.isArray(actions)) {
           const createdCount = response.created_ids.length;
@@ -173,6 +176,7 @@ export class AIChat implements AfterViewInit {
         }
         this.pendingActionType.set(null);
         this.tasksService.reloadCurrentView();
+        this.goalsService.loadGoals();
       }
 
     } catch (err) {
