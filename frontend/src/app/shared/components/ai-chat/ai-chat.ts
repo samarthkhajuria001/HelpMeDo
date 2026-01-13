@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { AiService, DisplayMessage } from '../../../core/services/ai';
 import { Tasks } from '../../../core/services/tasks';
 import { UserService } from '../../../core/services/user';
-import { ParsedTask, SubtaskActions } from '../../../core/models';
+import { ParsedTask, SubtaskActions, GoalPlan } from '../../../core/models';
 
 @Component({
   selector: 'app-ai-chat',
@@ -31,7 +31,7 @@ export class AIChat implements AfterViewInit {
     });
   }
   isTyping = signal(false);
-  pendingActions = signal<ParsedTask[] | SubtaskActions | null>(null);
+  pendingActions = signal<ParsedTask[] | SubtaskActions | GoalPlan | null>(null);
   pendingActionType = signal<string | null>(null);
   isExecuting = signal(false);
 
@@ -40,16 +40,24 @@ export class AIChat implements AfterViewInit {
     const actions = this.pendingActions();
     if (!actions) return false;
     if (Array.isArray(actions)) return actions.length > 0;
+    if ('goal_title' in actions) return !!actions.tasks?.length;
     return !!actions.subtasks?.length;
   });
   isSubtaskAction = computed(() => this.pendingActionType() === 'create_subtasks');
+  isPlanAction = computed(() => this.pendingActionType() === 'create_goal_plan');
   pendingTasks = computed(() => {
     const actions = this.pendingActions();
     return Array.isArray(actions) ? actions : [];
   });
   pendingSubtasks = computed(() => {
     const actions = this.pendingActions();
-    return !Array.isArray(actions) && actions ? actions : null;
+    if (!actions || Array.isArray(actions) || 'goal_title' in actions) return null;
+    return actions as SubtaskActions;
+  });
+  pendingPlan = computed(() => {
+    const actions = this.pendingActions();
+    if (!actions || Array.isArray(actions) || !('goal_title' in actions)) return null;
+    return actions as GoalPlan;
   });
 
   ngAfterViewInit() {
@@ -101,9 +109,14 @@ export class AIChat implements AfterViewInit {
       await this.typewriterEffect(messageId, response.message);
 
       if (response.actions && response.action_type) {
-        const hasActions = Array.isArray(response.actions)
-          ? response.actions.length > 0
-          : !!response.actions.subtasks?.length;
+        let hasActions = false;
+        if (Array.isArray(response.actions)) {
+          hasActions = response.actions.length > 0;
+        } else if ('goal_title' in response.actions) {
+          hasActions = !!response.actions.tasks?.length;
+        } else {
+          hasActions = !!response.actions.subtasks?.length;
+        }
 
         if (hasActions) {
           this.pendingActions.set(response.actions);
@@ -163,12 +176,16 @@ export class AIChat implements AfterViewInit {
       }
 
     } catch (err) {
+      let errorContent = "Failed to create tasks. Please try again.";
+      if (actionType === 'create_subtasks') {
+        errorContent = "Failed to create subtasks. Please try again.";
+      } else if (actionType === 'create_goal_plan') {
+        errorContent = "Failed to create the plan. Please try again.";
+      }
       const errorMessage: DisplayMessage = {
         id: Date.now().toString(),
         role: 'assistant',
-        content: actionType === 'create_subtasks'
-          ? "Failed to create subtasks. Please try again."
-          : "Failed to create tasks. Please try again.",
+        content: errorContent,
         timestamp: new Date()
       };
       this.aiService.addMessage(errorMessage);

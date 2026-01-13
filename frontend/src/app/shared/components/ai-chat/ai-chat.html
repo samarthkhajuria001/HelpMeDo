@@ -156,6 +156,54 @@
         </div>
       </div>
     }
+
+    <!-- Goal Plan Preview -->
+    @if (hasPendingActions() && isPlanAction() && pendingPlan()) {
+      <div class="action-preview plan-preview">
+        <div class="plan-header">
+          <div class="plan-goal-color" [style.background-color]="pendingPlan()!.goal_color"></div>
+          <div class="plan-goal-info">
+            <span class="plan-goal-title">{{ pendingPlan()!.goal_title }}</span>
+            <span class="plan-goal-description">{{ pendingPlan()!.goal_description }}</span>
+            <span class="plan-duration">{{ pendingPlan()!.duration_weeks }} weeks</span>
+          </div>
+        </div>
+        <div class="plan-tasks">
+          @for (task of pendingPlan()!.tasks; track task.title; let i = $index) {
+            <div class="plan-task-card">
+              <div class="plan-task-num">{{ i + 1 }}</div>
+              <div class="plan-task-content">
+                <div class="plan-task-header">
+                  <span class="plan-task-title">{{ task.title }}</span>
+                  <span class="week-badge">{{ task.week_range }}</span>
+                </div>
+                <span class="plan-task-description">{{ task.description }}</span>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="action-buttons">
+          <button
+            class="btn-create"
+            (click)="executeActions()"
+            [disabled]="isExecuting()"
+          >
+            @if (isExecuting()) {
+              Creating...
+            } @else {
+              Create Plan
+            }
+          </button>
+          <button
+            class="btn-cancel"
+            (click)="cancelActions()"
+            [disabled]="isExecuting()"
+          >
+            Start Over
+          </button>
+        </div>
+      </div>
+    }
   </div>
 
   <!-- Input Area -->
