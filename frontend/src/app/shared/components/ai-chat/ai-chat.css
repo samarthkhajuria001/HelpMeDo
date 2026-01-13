@@ -268,6 +268,7 @@
   padding: 12px;
   margin-top: 8px;
   animation: messageSlide 0.3s ease-out;
+  flex-shrink: 0;
 }
 
 .preview-cards {
@@ -460,6 +461,7 @@
 /* Goal Plan Preview */
 .plan-preview {
   max-height: 400px;
+  min-height: 200px;
   overflow-y: auto;
 }
 

@@ -62,7 +62,7 @@
     }
 
     <!-- Task Preview Cards -->
-    @if (hasPendingActions() && !isSubtaskAction()) {
+    @if (hasPendingActions() && !isSubtaskAction() && !isPlanAction()) {
       <div class="action-preview">
         <div class="preview-cards">
           @for (task of pendingTasks(); track task.title) {
