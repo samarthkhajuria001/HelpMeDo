@@ -27,7 +27,7 @@ export interface ChatResponse {
   message: string;
   session_id: string;
   message_metadata?: Record<string, unknown>;
-  actions?: ParsedTask[] | SubtaskActions;
+  actions?: ParsedTask[] | SubtaskActions | GoalPlan;
   action_type?: string;
 }
 
@@ -43,7 +43,7 @@ export interface ExecuteTaskData {
 
 export interface ExecuteRequest {
   action_type: string;
-  data: ExecuteTaskData[] | SubtaskActions;
+  data: ExecuteTaskData[] | SubtaskActions | GoalPlan;
   session_id?: string;
 }
 
@@ -72,3 +72,21 @@ export interface SubtaskActions {
   parent_task_title: string;
   subtasks: SubtaskItem[];
 }
+
+export interface PlanTask {
+  title: string;
+  description: string;
+  week_range: string;
+  priority: 'high' | 'medium' | 'low';
+  estimated_pomodoros: number;
+}
+
+export interface GoalPlan {
+  goal_title: string;
+  goal_description: string;
+  goal_color: string;
+  duration_weeks: number;
+  tasks: PlanTask[];
+}
+
+export type ActionData = ParsedTask[] | SubtaskActions | GoalPlan;

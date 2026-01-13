@@ -8,7 +8,8 @@ import {
   ExecuteResponse,
   ParsedTask,
   ChatMessage,
-  SubtaskActions
+  SubtaskActions,
+  GoalPlan
 } from '../models';
 import { firstValueFrom } from 'rxjs';
 
@@ -17,7 +18,7 @@ export interface DisplayMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  actions?: ParsedTask[] | SubtaskActions;
+  actions?: ParsedTask[] | SubtaskActions | GoalPlan;
   actionType?: string;
 }
 
@@ -98,7 +99,7 @@ export class AiService {
     }
   }
 
-  async executeActions(actions: ParsedTask[] | SubtaskActions, actionType: string): Promise<ExecuteResponse> {
+  async executeActions(actions: ParsedTask[] | SubtaskActions | GoalPlan, actionType: string): Promise<ExecuteResponse> {
     this.loading.set(true);
     this.error.set(null);
 
@@ -106,6 +107,8 @@ export class AiService {
 
     if (actionType === 'create_subtasks') {
       data = actions as SubtaskActions;
+    } else if (actionType === 'create_goal_plan') {
+      data = actions as GoalPlan;
     } else {
       const taskActions = actions as ParsedTask[];
       data = taskActions.map(task => ({
