@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from app.ai.config import get_llm
+from app.ai.config import get_llm, get_checkpointer
 from app.ai.context import build_user_context, get_user_goals
 from app.ai.chains.intent_router import classify_intent
 from app.ai.chains.magic_capture import parse_tasks, calculate_time_horizon
@@ -9,6 +9,7 @@ from app.ai.chains.librarian import answer_question
 from app.ai.chains.reality_check import analyze_workload
 from app.ai.chains.smart_review import generate_review
 from app.ai.chains.stuck_breaker import break_down_task
+from app.ai.graphs.deep_plan import get_compiled_graph
 from app.schemas.ai import Intent
 from datetime import datetime
 
@@ -49,15 +50,29 @@ def process_message(
     db: Session,
     client_date: str | None = None,
     custom_instructions: str | None = None,
-    history: list | None = None
+    history: list | None = None,
+    session_id: str | None = None
 ) -> dict:
     """
     Main entry point for processing AI chat messages.
     Returns dict with message, and optionally actions/action_type for confirmable operations.
     """
+    # Step 1: Check for active deep plan session (skip intent classification)
+    if session_id:
+        active_state = get_active_graph_state(session_id)
+        if active_state:
+            return resume_deep_plan(message, user_id, session_id)
+
+    # Step 2: Classify intent for new messages
     classification = classify_intent(message)
 
-    if classification.intent == Intent.MAGIC_CAPTURE:
+    # Step 3: Route based on intent
+    if classification.intent == Intent.DEEP_PLAN:
+        if session_id:
+            return start_deep_plan(message, user_id, session_id)
+        else:
+            return {"message": "I'd love to help you plan! Please refresh and try again.", "actions": None, "action_type": None}
+    elif classification.intent == Intent.MAGIC_CAPTURE:
         return handle_magic_capture(message, user_id, db, client_date)
     elif classification.intent == Intent.LIBRARIAN:
         return answer_question(message, user_id, db, client_date)
@@ -152,4 +167,100 @@ def handle_general_chat(
         "message": response,
         "actions": None,
         "action_type": None
+    }
+
+
+def get_active_graph_state(session_id: str) -> dict | None:
+    """
+    Check for an active deep plan graph state in Redis.
+    Returns the state values if found and still in progress, None otherwise.
+    """
+    try:
+        checkpointer = get_checkpointer()
+        graph = get_compiled_graph(checkpointer)
+        config = {"configurable": {"thread_id": session_id}}
+
+        state_snapshot = graph.get_state(config)
+        if state_snapshot and state_snapshot.values:
+            phase = state_snapshot.values.get("phase")
+            if phase and phase not in ["ready", None]:
+                return state_snapshot.values
+    except Exception:
+        pass
+
+    return None
+
+
+def start_deep_plan(message: str, user_id: str, session_id: str) -> dict:
+    """Start a new deep plan graph execution."""
+    try:
+        checkpointer = get_checkpointer()
+        graph = get_compiled_graph(checkpointer)
+
+        initial_state = {
+            "messages": [{"role": "user", "content": message}],
+            "user_id": user_id,
+            "session_id": session_id,
+            "goal_intent": "",
+            "user_constraints": {},
+            "plan_data": None,
+            "phase": "gathering",
+            "iteration_count": 0,
+            "needs_info": [],
+            "final_message": None,
+        }
+
+        config = {"configurable": {"thread_id": session_id}}
+        result = graph.invoke(initial_state, config)
+
+        return extract_graph_response(result)
+
+    except Exception as e:
+        return {
+            "message": f"I'm having trouble starting the planner. Please try again. ({str(e)[:50]})",
+            "actions": None,
+            "action_type": None
+        }
+
+
+def resume_deep_plan(message: str, _user_id: str, session_id: str) -> dict:
+    """Resume an existing deep plan graph with new user input."""
+    try:
+        checkpointer = get_checkpointer()
+        graph = get_compiled_graph(checkpointer)
+
+        config = {"configurable": {"thread_id": session_id}}
+
+        result = graph.invoke(
+            {"messages": [{"role": "user", "content": message}]},
+            config
+        )
+
+        return extract_graph_response(result)
+
+    except Exception as e:
+        return {
+            "message": f"I lost track of our conversation. Let's start fresh - what would you like to plan? ({str(e)[:50]})",
+            "actions": None,
+            "action_type": None
+        }
+
+
+def extract_graph_response(result: dict) -> dict:
+    """Extract response dict from graph result, including plan actions if available."""
+    message = result.get("final_message") or "I'm working on your plan..."
+    actions = None
+    action_type = None
+
+    plan_data = result.get("plan_data")
+    phase = result.get("phase")
+
+    if plan_data and phase in ["refining", "ready"]:
+        action_type = "create_goal_plan"
+        actions = plan_data
+
+    return {
+        "message": message,
+        "actions": actions,
+        "action_type": action_type
     }

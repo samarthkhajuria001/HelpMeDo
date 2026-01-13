@@ -35,7 +35,8 @@ async def chat(
             db=db,
             client_date=request.client_date,
             custom_instructions=custom_instructions,
-            history=history
+            history=history,
+            session_id=session_id
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")
