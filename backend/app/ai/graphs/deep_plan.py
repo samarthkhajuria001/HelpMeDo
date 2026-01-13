@@ -26,13 +26,19 @@ def route_to_node(state: DeepPlanState) -> str:
 
     # Check latest message for special signals
     if messages:
-        latest = messages[-1].get("content", "").lower() if messages[-1].get("role") == "user" else ""
+        last_msg = messages[-1]
+        # Handle both dicts (if manually passed) and LangChain objects
+        content = getattr(last_msg, "content", None) or last_msg.get("content", "")
+        role = getattr(last_msg, "type", None) or getattr(last_msg, "role", None) or last_msg.get("role", "")
+        
+        # LangChain HumanMessage has type='human'
+        if role in ["user", "human"]:
+            latest = content.lower()
+            if any(signal in latest for signal in APPROVAL_SIGNALS):
+                return "prepare_final"
 
-        if any(signal in latest for signal in APPROVAL_SIGNALS):
-            return "prepare_final"
-
-        if any(signal in latest for signal in CANCEL_SIGNALS):
-            return "handle_cancel"
+            if any(signal in latest for signal in CANCEL_SIGNALS):
+                return "handle_cancel"
 
     # Route based on phase
     if phase == "refining":

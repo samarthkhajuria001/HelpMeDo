@@ -33,11 +33,15 @@ _checkpointer = None
 
 
 def get_checkpointer():
-    """Get or create LangGraph Redis checkpointer singleton."""
+    """Get or create LangGraph checkpointer singleton.
+
+    Uses MemorySaver for simplicity (state lost on restart).
+    For production, use Redis with proper async context management.
+    """
     global _checkpointer
     if _checkpointer is None:
-        from langgraph.checkpoint.redis import RedisSaver
-        _checkpointer = RedisSaver(get_redis_client())
+        from langgraph.checkpoint.memory import MemorySaver
+        _checkpointer = MemorySaver()
     return _checkpointer
 
 

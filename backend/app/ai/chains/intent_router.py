@@ -60,10 +60,11 @@ def classify_intent(message: str) -> IntentClassification:
 
     result = chain.invoke({"message": message})
 
-    intent_str = result.get("intent", "general_chat")
+    intent_str = result.get("intent", "general_chat").lower().strip()
     try:
         intent = Intent(intent_str)
     except ValueError:
+        print(f"DEBUG: Intent classification failed for '{intent_str}'. Defaulting to general_chat.")
         intent = Intent.GENERAL_CHAT
 
     confidence = float(result.get("confidence", 0.5))
