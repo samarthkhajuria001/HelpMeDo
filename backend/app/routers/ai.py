@@ -360,6 +360,7 @@ async def execute_create_goal_plan(
                     priority=priority,
                     time_horizon=TimeHorizon.week,
                     due_date=due_date_val,
+                    estimated_pomodoros=task_data.get("estimated_pomodoros"),
                     status=Status.pending,
                     source="ai_deep_plan",
                     generated_by_agent=True,
@@ -461,18 +462,31 @@ def parse_goal_color(color_value: str | None) -> GoalColor:
     return GoalColor.blue
 
 
-def calculate_due_date_from_week(week_range: str | None) -> date | None:
-    """Convert 'Week 1-2' or 'Week 5-8' to an actual due date (end of range)."""
+def get_coming_sunday(current_date: date) -> date:
+    """Get the coming Sunday (or today if today is Sunday)."""
+    if current_date.weekday() == 6:  # Today is Sunday
+        return current_date
+    days_until_sunday = 6 - current_date.weekday()
+    return current_date + timedelta(days=days_until_sunday)
+
+
+def calculate_due_date_from_week(week_range: str | None) -> date:
+    """Convert 'Week 1-2' or 'Week 5-8' to an actual due date (end of range).
+
+    If week_range is None or can't be parsed, defaults to coming Sunday.
+    """
+    today = date.today()
+    default_due = get_coming_sunday(today)
+
     if not week_range:
-        return None
+        return default_due
 
     match = re.search(r'Week\s*(\d+)(?:\s*-\s*(\d+))?', week_range, re.IGNORECASE)
     if not match:
-        return None
+        return default_due
 
     start_week = int(match.group(1))
     end_week = int(match.group(2)) if match.group(2) else start_week
 
-    today = date.today()
     days_to_add = end_week * 7
     return today + timedelta(days=days_to_add)

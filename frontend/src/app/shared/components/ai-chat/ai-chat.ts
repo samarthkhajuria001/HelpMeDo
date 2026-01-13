@@ -256,6 +256,21 @@ export class AIChat implements AfterViewInit {
     textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
   }
 
+  parseMessageContent(content: string): string {
+    if (!content) return '';
+    // Basic sanitization (replace < and > to prevent XSS if we were using a real parser, but here we trust backend mostly or just do simple replacements)
+    // Note: Angular [innerHTML] has some built-in sanitization, but let's be careful.
+    // For this simple case, we just replace bold syntax.
+    
+    // 1. Replace newlines with <br>
+    let formatted = content.replace(/\n/g, '<br>');
+    
+    // 2. Replace **text** with <b>text</b>
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    
+    return formatted;
+  }
+
   private async typewriterEffect(messageId: string, fullText: string): Promise<void> {
     const chunkSize = 3;
     const delay = 15;

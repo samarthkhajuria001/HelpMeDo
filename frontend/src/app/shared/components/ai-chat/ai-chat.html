@@ -23,7 +23,7 @@
             [class.user-bubble]="message.role === 'user'"
             [class.ai-bubble]="message.role === 'assistant'"
           >
-            <div class="message-text">{{ message.content }}</div>
+            <div class="message-text" [innerHTML]="parseMessageContent(message.content)"></div>
           </div>
           <div class="message-time">{{ formatTime(message.timestamp) }}</div>
         </div>
