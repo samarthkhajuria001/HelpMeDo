@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.utils.dependencies import get_current_user
-from app.models import User, ChatMessage, Task, Goal, Subtask, SubtaskStatus
+from app.models import User, ChatMessage, Task, Goal, GoalColor, Subtask, SubtaskStatus
 from app.models.task import Priority, Status, TimeHorizon
 from app.schemas.ai import ChatRequest, ChatResponse, ExecuteRequest, ExecuteResponse
 from app.ai.router import process_message
@@ -325,11 +325,12 @@ async def execute_create_goal_plan(
         )
 
     try:
+        goal_color = parse_goal_color(plan_data.get("goal_color"))
+
         goal = Goal(
             user_id=current_user.id,
             name=plan_data.get("goal_title", "Untitled Goal"),
-            description=plan_data.get("goal_description", ""),
-            color=plan_data.get("goal_color", "#6B7280"),
+            color=goal_color,
             archived=False
         )
         db.add(goal)
@@ -418,6 +419,46 @@ async def execute_create_goal_plan(
             message=f"Failed to create plan: {str(e)}",
             errors=[str(e)]
         )
+
+
+def parse_goal_color(color_value: str | None) -> GoalColor:
+    """Map color name or hex string to GoalColor enum."""
+    if not color_value:
+        return GoalColor.blue
+
+    color_lower = color_value.lower().strip()
+
+    # Direct name match
+    name_map = {
+        "blue": GoalColor.blue,
+        "green": GoalColor.green,
+        "amber": GoalColor.amber,
+        "rose": GoalColor.rose,
+        "violet": GoalColor.violet,
+        "cyan": GoalColor.cyan,
+        "red": GoalColor.rose,
+        "purple": GoalColor.violet,
+        "pink": GoalColor.rose,
+    }
+
+    if color_lower in name_map:
+        return name_map[color_lower]
+
+    # Hex fallback
+    hex_map = {
+        "#3B82F6": GoalColor.blue,
+        "#10B981": GoalColor.green,
+        "#F59E0B": GoalColor.amber,
+        "#EF4444": GoalColor.rose,
+        "#8B5CF6": GoalColor.violet,
+        "#06B6D4": GoalColor.cyan,
+    }
+
+    hex_upper = color_value.upper()
+    if hex_upper in hex_map:
+        return hex_map[hex_upper]
+
+    return GoalColor.blue
 
 
 def calculate_due_date_from_week(week_range: str | None) -> date | None:

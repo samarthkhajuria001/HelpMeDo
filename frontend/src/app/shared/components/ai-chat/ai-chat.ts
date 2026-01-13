@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { AiService, DisplayMessage } from '../../../core/services/ai';
 import { Tasks } from '../../../core/services/tasks';
 import { UserService } from '../../../core/services/user';
-import { ParsedTask, SubtaskActions, GoalPlan } from '../../../core/models';
+import { ParsedTask, SubtaskActions, GoalPlan, GOAL_COLORS, GoalColor } from '../../../core/models';
 
 @Component({
   selector: 'app-ai-chat',
@@ -236,6 +236,12 @@ export class AIChat implements AfterViewInit {
     if (!dateStr) return '';
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  getGoalColorHex(colorName: string | undefined): string {
+    if (!colorName) return GOAL_COLORS.blue;
+    const key = colorName.toLowerCase() as GoalColor;
+    return GOAL_COLORS[key] || GOAL_COLORS.blue;
   }
 
   resizeTextarea(): void {

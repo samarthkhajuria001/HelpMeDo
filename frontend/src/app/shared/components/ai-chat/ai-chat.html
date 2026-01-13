@@ -161,7 +161,7 @@
     @if (hasPendingActions() && isPlanAction() && pendingPlan()) {
       <div class="action-preview plan-preview">
         <div class="plan-header">
-          <div class="plan-goal-color" [style.background-color]="pendingPlan()!.goal_color"></div>
+          <div class="plan-goal-color" [style.background-color]="getGoalColorHex(pendingPlan()!.goal_color)"></div>
           <div class="plan-goal-info">
             <span class="plan-goal-title">{{ pendingPlan()!.goal_title }}</span>
             <span class="plan-goal-description">{{ pendingPlan()!.goal_description }}</span>
