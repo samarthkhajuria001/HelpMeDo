@@ -1,19 +1,22 @@
-import { Component, AfterViewInit, ElementRef, ViewChild, inject, signal, NgZone } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, inject, signal, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import lottie from 'lottie-web';
 import { Auth } from '../../core/auth';
 import { environment } from '../../../environments/environment';
+import { OnboardingModal } from '../../shared/components/onboarding-modal/onboarding-modal';
 
 declare const google: any;
 
+const ONBOARDING_SEEN_KEY = 'helpme_onboarding_seen_guest';
+
 @Component({
   selector: 'app-login',
-  imports: [CommonModule],
+  imports: [CommonModule, OnboardingModal],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login implements AfterViewInit {
+export class Login implements AfterViewInit, OnInit {
   @ViewChild('lottieContainer') lottieContainer!: ElementRef;
   @ViewChild('googleButtonContainer') googleButtonContainer!: ElementRef;
 
@@ -23,6 +26,25 @@ export class Login implements AfterViewInit {
 
   isLoading = signal(false);
   errorMessage = signal('');
+  showOnboarding = signal(false);
+
+  ngOnInit() {
+    this.checkOnboarding();
+  }
+
+  private checkOnboarding() {
+    const seen = localStorage.getItem(ONBOARDING_SEEN_KEY);
+    if (!seen) {
+      setTimeout(() => {
+        this.showOnboarding.set(true);
+      }, 800);
+    }
+  }
+
+  onOnboardingComplete() {
+    localStorage.setItem(ONBOARDING_SEEN_KEY, 'true');
+    this.showOnboarding.set(false);
+  }
 
   ngAfterViewInit() {
     this.initLottie();
