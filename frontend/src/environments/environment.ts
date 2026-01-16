@@ -1,4 +1,4 @@
-const useLocalApi = true;  // Toggle: true = localhost:8000, false = Railway
+const useLocalApi = false;  // Toggle: true = localhost:8000, false = Railway
 
 export const environment = {
   production: false,
