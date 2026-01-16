@@ -14,21 +14,16 @@ COPY . .
 # Build for production
 RUN npm run build
 
-# Production stage with nginx
-FROM nginx:alpine
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install serve globally
+RUN npm install -g serve
 
 # Copy built app from build stage
-COPY --from=build /app/dist/frontend/browser /usr/share/nginx/html
+COPY --from=build /app/dist/frontend/browser ./dist
 
-# Create nginx config template that uses PORT env variable
-RUN echo 'server { \
-    listen ${PORT}; \
-    server_name _; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    location / { \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/templates/default.conf.template
-
-CMD ["nginx", "-g", "daemon off;"]
+# Serve on Railway's PORT (default 3000)
+CMD ["sh", "-c", "serve -s dist -l ${PORT:-3000}"]
